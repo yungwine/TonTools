@@ -78,7 +78,7 @@ def get_items(addresses: list, filename_with_nft_metadata=None, client: TonlibCl
             close_client(client)
     if len(nft_items) < len(addresses):
         raise Exception('SCANNED NOT ALL ITEMS')
-    return {"nft_items": nft_items}
+    return nft_items
 
 
 async def get_item(client: TonlibClient, addr: str, nft_items: list, items: dict = None):
