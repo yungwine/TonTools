@@ -145,6 +145,7 @@ async def _get_collection(client: TonlibClient, addr: str):
             'address': collection_data['owner_address'].to_string()
         }
     }
+    await client.tonlib_wrapper.close()
     return result
 
 
