@@ -52,13 +52,9 @@ async def _get_nft_owner(client: TonlibClient, addr: str):
     return owner_address
 
 
-def get_items(addresses: list, filename_with_nft_metadata=None, client: TonlibClient = None, max_requests: int = 1000, ls: int = 0):
+def get_items(addresses: list, client: TonlibClient = None, max_requests: int = 1000, ls: int = 0):
     items = {}
-    if filename_with_nft_metadata and 'json' not in filename_with_nft_metadata:
-        raise Exception('Only .json files are expected')
-    elif filename_with_nft_metadata:
-        with open(filename_with_nft_metadata, 'r') as j:
-            items = json.loads(j.read())
+
     nft_items = []
 
     for i in range(ceil(len(addresses) / max_requests)):
@@ -67,7 +63,7 @@ def get_items(addresses: list, filename_with_nft_metadata=None, client: TonlibCl
             client = get_client(ls)
         tasks = []
         for addr in addresses[i * max_requests:min(len(addresses), max_requests * (i + 1))]:
-            tasks.append(get_item(client, addr, nft_items, items))
+            tasks.append(get_item(client, addr, nft_items))
         # asyncio.set_event_loop(asyncio.SelectorEventLoop())
         try:
             asyncio.get_event_loop().run_until_complete(asyncio.gather(*tasks))
@@ -81,7 +77,7 @@ def get_items(addresses: list, filename_with_nft_metadata=None, client: TonlibCl
     return nft_items
 
 
-async def get_item(client: TonlibClient, addr: str, nft_items: list, items: dict = None):
+async def get_item(client: TonlibClient, addr: str, nft_items: list):
     account = await client.find_account(addr, preload_state=False)
     x = await account.get_nft_data()
     collection_address = x['collection_address'].to_string()
@@ -89,15 +85,8 @@ async def get_item(client: TonlibClient, addr: str, nft_items: list, items: dict
     nft_address = Address(addr).to_string(is_user_friendly=False)
     content_url = await get_nft_content_url(client, x['content'], collection_address)
 
-    if items:
-        if str(x['index']) in items:
-            content = items[str(x['index'])]
-        elif nft_address in items:
-            content = items[nft_address]
-        else:
-            content = await get(content_url)
-    else:
-        content = await get(content_url)
+    content = await get(content_url)
+
     collection_content = await get_collection_content(client, x['collection_address'].to_string())
     result = {
         'address': nft_address,
