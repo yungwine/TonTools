@@ -1,10 +1,18 @@
 # TonTools
 
-__TonTools__ is a _high-level_ library for Python, based on [psylopunk's pytonlib](https://github.com/psylopunk/pytonlib) which can be used to interacrt with [TON Blockchain](https://ton.org).
+__TonTools__ is a _high-level_ library for Python, which can be used to interacrt with [TON Blockchain](https://ton.org).
+
+[![PyPI version](https://badge.fury.io/py/tontools.svg)](https://badge.fury.io/py/tontools)
+
+## How to install:
+
+```bash
+pip install tontools
+```
 
 ## Basics
 
-__TonTools__ gets data from blockhain using [lite clients](https://ton.org/docs/participate/nodes/node-types). So you can use __get_client()__ function which returns a TonLibClient instance
+__TonTools__ gets data from blockhain using [lite clients](https://ton.org/docs/participate/nodes/node-types) (based on [psylopunk's pytonlib](https://github.com/psylopunk/pytonlib)). So you can use __get_client()__ function which returns a TonLibClient instance
 
 In most functions the _client_ parameter is optional, so you can pass it to function or not. It useful when you whould like to work with a specific liteserver,
 for e.g. 
