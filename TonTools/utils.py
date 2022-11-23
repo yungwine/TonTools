@@ -95,7 +95,7 @@ async def get_nft_sale(client: TonlibClient, owner_address: str):
                 'address': read_address(Cell.one_from_boc(b64decode(response.stack[5].cell.bytes))).to_string()
             },
             'price': {
-                'value': str(max(int(response.stack[6].number.number), int(response.stack[16].number.number))),
+                'value': str(max(int(response.stack[6].number.number), int(response.stack[16].number.number))) if len(response.stack) >= 16 else str(int(response.stack[6].number.number)),
             }
         }
     else:
