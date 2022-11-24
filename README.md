@@ -29,7 +29,7 @@ get_collection(addr='EQCg2iAv486UTCHN9PCwjpRKrUoFvJDs28bcQGCbtCgQIIFd', client=c
 ```python
 from TonTools import *
 
-get_collection('EQCg2iAv486UTCHN9PCwjpRKrUoFvJDs28bcQGCbtCgQIIFd') -> dict of collection data, e.g.
+get_collection('EQCg2iAv486UTCHN9PCwjpRKrUoFvJDs28bcQGCbtCgQIIFd') -> " dict of collection data, e.g. "
 
 {'address': '0:a0da202fe3ce944c21cdf4f0b08e944aad4a05bc90ecdbc6dc40609bb4281020',
   'metadata': {
@@ -41,11 +41,13 @@ get_collection('EQCg2iAv486UTCHN9PCwjpRKrUoFvJDs28bcQGCbtCgQIIFd') -> dict of co
   'owner': {'address': '0:1239440bdcfa24d1fb941ef73f774958e0aed9f559c613f54ba2ddc601e48d55'}
 }
 
-get_nft_items_by_owner_address('EQC2QQD8mjxgKEAv-ZeCiOsii21vWR5BZtLO_LQGFB33gJSt')  -> list of nft items addresses ! shows nft items were bought by user or were transferred to user's wallet !
+get_nft_items_by_owner_address('EQC2QQD8mjxgKEAv-ZeCiOsii21vWR5BZtLO_LQGFB33gJSt')  -> " list of nft items addresses ! shows nft items were bought by user or were transferred to user's wallet ! "
 
-get_collection_items() -> list of nft items addresses related to collection wallet
+get_collection_items() -> " list of nft items addresses related to collection wallet "
 
-get_items() -> list of dicts with nfts data. e.g.
+get_nft_owner() -> " returns address of owner's wallet (if nft on sale or auction it returns nft actual owner, not sale smart contract's address) "
+
+get_items() -> " list of dicts with nfts data. e.g. "
 
 get_items(['EQCX3LvmFxVqz52ByQd1bNjnJ_ZutkTVfWty3RGy3LX0-x2P', 'EQDsz_jnLXePSCZCuzjwH2O3q_fk_rDdkKQXbbTPa_lV3ILJ'])
 
@@ -58,12 +60,12 @@ get_items(['EQCX3LvmFxVqz52ByQd1bNjnJ_ZutkTVfWty3RGy3LX0-x2P', 'EQDsz_jnLXePSCZC
 ## Other Functions
 
 ```python
-get_all_wallet_transactions_raw() -> list of transactions in raw format
+get_all_wallet_transactions_raw() -> " list of transactions in raw format "
 
-get_all_wallet_transactions() -> list of transactions in human-readble format, e.g.
+get_all_wallet_transactions() -> " list of transactions in human-readble format, e.g. "
 
 get_all_wallet_transactions(addr='EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxLiE', limit=2)
 [{'type': 'out', 'from': 'EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxLiE', 'to': 'EQDdGjo6KNmYy1TKJIgAitzLM-oMDDgDpngljPhzo1w3-0DB', 'value': 88445575221, 'message': '5P8VUG7tQldpGwRbZk8tMDedLeSfBez3k', 'fee': '5737002', 'timestamp': 1669213512, 'hash': 'x1+vjYIpmnmzmwWMK3PuPaiCnzvSA5MF76lgS9t3+pY='}, {'type': 'out', 'from': 'EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxLiE', 'to': 'EQBc7sxuLW7WA0S1O5Ga0Y19yyj-N7HVn38-_x57DMZ5h9Xi', 'value': 950000000, 'message': 'q4c93IkldxfdzsbBkRzZno0XliRBQgHj2', 'fee': '5729001', 'timestamp': 1669213486, 'hash': 'sks1oNLhbTMl3OXdo9k3bxHGfMNlF+zBaYJQ7J0kvzA='}]
 
-transfer_ton() -> transfers any amount of ton coins to destination wallet
+transfer_ton() -> " transfers any amount of ton coins to destination wallet "
 ```
