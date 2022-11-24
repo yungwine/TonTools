@@ -87,3 +87,8 @@ async def main():
 asyncio.get_event_loop().run_until_complete(main())
 
 ```
+
+## Donations
+__TON__ - EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG
+
+__BTC__ - bc1qhpqkdftgd85zqx6hdfnm0smdyczp4yr3mqn3lq
