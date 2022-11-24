@@ -79,7 +79,7 @@ from TonTools.funcs import _get_collection, _get_client
 
 
 async def main():
-    client = await _get_client(0, 30)
+    client = await _get_client(ls=0, timeout=30)
     collection = await _get_collection(client=client, addr='EQCA14o1-VWhS2efqoh_9M1b_A9DtKTuoqfmkn83AbJzwnPi')
     return collection
 
