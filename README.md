@@ -14,7 +14,7 @@ pip install tontools
 
 __TonTools__ gets data from blockhain using [lite clients](https://ton.org/docs/participate/nodes/node-types) (based on [psylopunk's pytonlib](https://github.com/psylopunk/pytonlib)). So you can use __get_client()__ function which returns a TonLibClient instance
 
-In most functions the _client_ parameter is optional, so you can pass it to function or not. It useful when you whould like to work with a specific liteserver,
+In most functions the _client_ parameter is optional, so you can pass it to function or not. It useful when you would like to work with a specific liteserver,
 for e.g. 
 ```python
 from TonTools import get_collection, get_client
