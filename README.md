@@ -1,6 +1,6 @@
 # TonTools
 
-__TonTools__ is a _high-level_ library for Python, which can be used to interacrt with [TON Blockchain](https://ton.org).
+__TonTools__ is a _high-level_ library for Python, which can be used to interact with [TON Blockchain](https://ton.org).
 
 [![PyPI version](https://badge.fury.io/py/tontools.svg)](https://badge.fury.io/py/tontools)
 
