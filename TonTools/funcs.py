@@ -131,7 +131,7 @@ async def _get_collection(client: TonlibClient, addr: str):
         'metadata': collection_content,
         'next_item_index': collection_data['next_item_index'],
         'owner': {
-            'address': collection_data['owner_address'].to_string()
+            'address': collection_data['owner_address'].to_string() if isinstance(collection_data['owner_address'], Address) else None
         }
     }
     await client.tonlib_wrapper.close()
