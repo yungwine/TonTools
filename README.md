@@ -1,6 +1,6 @@
 # TonTools
 
-__TonTools__ is a _high-level_ library for Python, which can be used to interacrt with [TON Blockchain](https://ton.org).
+__TonTools__ is a _high-level_ library for Python, which can be used to interact with [TON Blockchain](https://ton.org).
 
 [![PyPI version](https://badge.fury.io/py/tontools.svg)](https://badge.fury.io/py/tontools)
 
@@ -69,3 +69,26 @@ get_all_wallet_transactions(addr='EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxL
 
 transfer_ton() -> " transfers any amount of ton coins to destination wallet "
 ```
+## Async Functions
+
+All synchronous functions call their asynchronous analogs, so if you need, you can call an asynchronous function at once:
+
+```python
+import asyncio
+from TonTools.funcs import _get_collection, _get_client
+
+
+async def main():
+    client = await _get_client(ls=0, timeout=30)
+    collection = await _get_collection(client=client, addr='EQCA14o1-VWhS2efqoh_9M1b_A9DtKTuoqfmkn83AbJzwnPi')
+    return collection
+
+
+asyncio.get_event_loop().run_until_complete(main())
+
+```
+
+## Donations
+__TON__ - EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG
+
+__BTC__ - bc1qhpqkdftgd85zqx6hdfnm0smdyczp4yr3mqn3lq
