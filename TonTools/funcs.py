@@ -155,7 +155,9 @@ def get_all_wallet_transactions(addr: str, limit: int = 10**9, client: TonlibCli
     """
     if not client:
         client = get_client(2)
-    return asyncio.get_event_loop().run_until_complete(_get_all_wallet_transactions(client, addr, limit))
+    result = asyncio.get_event_loop().run_until_complete(_get_all_wallet_transactions(client, addr, limit))
+    close_client(client)
+    return result
 
 
 async def _get_all_wallet_transactions(client: TonlibClient, addr: str, limit: int = 10**9):
@@ -186,7 +188,7 @@ async def _get_all_wallet_transactions(client: TonlibClient, addr: str, limit: i
             tr_result['value'] = int(tr['in_msg']['value'])
             tr_result['message'] = base64.b64decode(tr['in_msg']['msg_data']['text']).decode('utf-8') if tr['in_msg']['msg_data']['@type'] == 'msg.dataText' else ''
         result.append(tr_result)
-    await client.tonlib_wrapper.close()
+    # await client.tonlib_wrapper.close()
     return result
 
 
