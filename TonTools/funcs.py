@@ -296,3 +296,25 @@ async def _transfer_ton(client: TonlibClient, mnemonic: list, address: str, valu
     resp = await client.send_boc(boc)
     await client.tonlib_wrapper.close()
     return resp
+
+
+def create_wallet(wallet_version : str = 'v4r2'):
+    mnemonics, _pub_k, _priv_k, wallet = Wallets.create(version=WalletVersionEnum(wallet_version), workchain=0)
+    return {'mnemonics': mnemonics, 'address': wallet.address.to_string(True, True, True)}
+
+
+def deploy_wallet(mnemonics: List[str], wallet_version: str = 'v4r2', client : TonlibClient = None):
+    if not client:
+        client = get_client()
+    result = asyncio.get_event_loop().run_until_complete(_deploy_wallet(client, mnemonics, wallet_version))
+    close_client(client)
+    return result
+
+
+async def _deploy_wallet(client:TonlibClient, mnemonics: List[str], wallet_version: str):
+    _mnemonics, _pub_k, _priv_k, wallet = Wallets.from_mnemonics(
+        mnemonics, WalletVersionEnum(wallet_version), 0)
+    query = wallet.create_init_external_message()
+    base64_boc = query["message"].to_boc(False)
+    response = await client.send_boc(message=base64_boc)
+    return response.to_json()
