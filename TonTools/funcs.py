@@ -178,12 +178,12 @@ async def _get_all_wallet_transactions(client: TonlibClient, addr: str, limit: i
         if len(tr['out_msgs']):
             tr_result['type'] = 'out'
             tr_result['from'] = Address(addr).to_string(True, True, True)
-            tr_result['to'] = Address(tr['out_msgs'][0]['destination']['account_address']).to_string(True, True, True)
+            tr_result['to'] = Address(tr['out_msgs'][0]['destination']['account_address']).to_string(True, True, True) if tr['out_msgs'][0]['destination']['account_address'] else ''
             tr_result['value'] = int(tr['out_msgs'][0]['value'])
             tr_result['message'] = base64.b64decode(tr['out_msgs'][0]['msg_data']['text']).decode('utf-8') if tr['out_msgs'][0]['msg_data']['@type'] == 'msg.dataText' else ''
         else:
             tr_result['type'] = 'in'
-            tr_result['from'] = Address(tr['in_msg']['source']['account_address']).to_string(True, True, True)
+            tr_result['from'] = Address(tr['in_msg']['source']['account_address']).to_string(True, True, True) if tr['in_msg']['source']['account_address'] else ''
             tr_result['to'] = Address(addr).to_string(is_user_friendly=True)
             tr_result['value'] = int(tr['in_msg']['value'])
             tr_result['message'] = base64.b64decode(tr['in_msg']['msg_data']['text']).decode('utf-8') if tr['in_msg']['msg_data']['@type'] == 'msg.dataText' else ''
