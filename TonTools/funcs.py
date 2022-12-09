@@ -270,7 +270,7 @@ async def _get_collection_items(client: TonlibClient, addr: str):
     return result
 
 
-def transfer_ton(mnemonic: list, address: str, value: float, comment: str = '', wallet_version: str = 'v4r2', client: TonlibClient = None):
+def transfer_ton(mnemonic: list, address: str, value: float, comment: str = '', wallet_version: str = 'v4r2', client: TonlibClient = None, send_mode=3):
     """
     :param mnemonic: seed phrase of owner wallet
     :param address: address to send Tons
@@ -282,19 +282,20 @@ def transfer_ton(mnemonic: list, address: str, value: float, comment: str = '', 
     if not client:
         client = get_client(2)
 
-    return asyncio.get_event_loop().run_until_complete(_transfer_ton(client, mnemonic, address, value, comment, wallet_version))
+    result = asyncio.get_event_loop().run_until_complete(_transfer_ton(client, mnemonic, address, value, comment, wallet_version, send_mode))
+    close_client(client)
+    return result
 
 
-async def _transfer_ton(client: TonlibClient, mnemonic: list, address: str, value: float, comment: str, wallet_version: str):
+async def _transfer_ton(client: TonlibClient, mnemonic: list, address: str, value: float, comment: str, wallet_version: str, send_mode=3):
     mnemonics, _pub_k, _priv_k, wallet = Wallets.from_mnemonics(mnemonic, WalletVersionEnum(wallet_version), 0)
     account = await client.find_account(wallet.address.to_string())
     seqno = await account.seqno()
     query = wallet.create_transfer_message(to_addr=address,
                                           amount=to_nano(value, 'ton'),
-                                          seqno=seqno, payload=comment)
+                                          seqno=seqno, payload=comment, send_mode=send_mode)
     boc = query["message"].to_boc(False)
     resp = await client.send_boc(boc)
-    await client.tonlib_wrapper.close()
     return resp
 
 
