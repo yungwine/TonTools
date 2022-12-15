@@ -16,15 +16,15 @@ import ton.tonlibjson
 from .utils import *
 
 
-async def _get_client(ls: int, timeout: int):
+async def _get_client(ls: int, timeout: int, cdll_path: str = None):
     TonlibClient.enable_unaudited_binaries()
     client = TonlibClient(ls_index=ls, default_timeout=timeout)
-    await client.init_tonlib()
+    await client.init_tonlib(cdll_path=cdll_path)
     return client
 
 
-def get_client(ls: int = 0, timeout: int = 30) -> TonlibClient:
-    client = asyncio.get_event_loop().run_until_complete(_get_client(ls, timeout))
+def get_client(ls: int = 0, timeout: int = 30, cdll_path: str = None) -> TonlibClient:
+    client = asyncio.get_event_loop().run_until_complete(_get_client(ls, timeout, cdll_path))
     return client
 
 
