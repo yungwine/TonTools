@@ -1,11 +1,12 @@
 from setuptools import setup
+import setuptools
 
-requirements = ["tonsdk>=1.0.6", "ton>=0.26", "aiohttp>=3.8.1", "setuptools>=65.3.0"]
+requirements = ["tonsdk>=1.0.6", "ton>=0.26", "aiohttp>=3.8.1", "setuptools>=65.3.0", "requests>=2.28.1"]
 
 setup(
     name='TonTools',
-    version='1.0.8',
-    packages=['TonTools'],
+    version='2.0.1',
+    packages=['TonTools', 'TonTools/Contracts', 'TonTools/Providers'],
     url='',
     license='MIT License',
     author='yungwine',

@@ -1,94 +1,166 @@
 # TonTools
 
-__TonTools__ is a _high-level_ library for Python, which can be used to interact with [TON Blockchain](https://ton.org).
+__TonTools__ is a _high-level_ OOP library for Python, which can be used to interact with [TON Blockchain](https://ton.org).
 
-[![PyPI version](https://badge.fury.io/py/tontools.svg)](https://badge.fury.io/py/tontools)
+[comment]: <> ([![PyPI version]&#40;https://badge.fury.io/py/tontools.svg&#41;]&#40;https://badge.fury.io/py/tontools&#41;)
 
+[![PyPI version](https://badge.fury.io/py/tontools.svg)](https://badge.fury.io/py/tontools) ![visitors](https://visitor-badge.glitch.me/badge?page\_id=yungwine.tontools.readme\&left\_color=gray\&right\_color=red) ![](https://pepy.tech/badge/tontools) [![](https://img.shields.io/badge/%F0%9F%92%8E-TON-green)](https://ton.org)
 ## How to install:
 
 ```bash
 pip install tontools
 ```
+## Possibilities
+With __TonTools__ you can:
+* Scan custom Contracts and run get methods
+* Create, deploy and scan wallets
+* Scan NFT Collections, Items, Sale contracts
+* Scan Jettons, Jetton Wallets
+* Transfer Tons, Jettons, NFTs
+* Scan Transactions in raw or User-Friendly forms
+* And so much more...
+## Examples
+You can find them in `examples/` directory.
 
-## Basics
+## Providers
 
-__TonTools__ gets data from blockhain using [lite clients](https://ton.org/docs/participate/nodes/node-types) (based on [psylopunk's pytonlib](https://github.com/psylopunk/pytonlib)). So you can use __get_client()__ function which returns a TonLibClient instance
+__TonTools__ gets data from blockchain using Providers: [TonApiClient](https://tonapi.io/swagger-ui), [TonCenterClient](https://toncenter.com/api/v2/)
+and [LsClient](https://ton.org/docs/participate/nodes/node-types)
 
-In most functions the _client_ parameter is optional, so you can pass it to function or not. It useful when you would like to work with a specific liteserver,
-for e.g. 
+Most provider methods are the same, but there are some differences.
+### TonApiClient
+
+[TonApi](https://tonapi.io/swagger-ui) is a high level Api to interact with TON. 
+
+To initialize TonApiClient: 
 ```python
-from TonTools import get_collection, get_client
-
-client = get_client(ls=2)
-
-get_collection(addr='EQCg2iAv486UTCHN9PCwjpRKrUoFvJDs28bcQGCbtCgQIIFd', client=client)
+client = TonApiClient(api_key, addresses_form)
 ```
+`TonApiClient` hasn't `run_get_method` method, but it fast (cause of indexator), so 
+you should use it if you want to scan a lot of _transactions_ and _contracts_  
 
-## NFT Functions
 
+### TonCenterClient
+
+[TonCenter](https://toncenter.com/api/v2/) is an Api which uses [lite servers](https://ton.org/docs/participate/nodes/node-types)
+
+To initialize TonApiClient: 
 ```python
-from TonTools import *
-
-get_collection('EQCg2iAv486UTCHN9PCwjpRKrUoFvJDs28bcQGCbtCgQIIFd') -> " dict of collection data, e.g. "
-
-{'address': '0:a0da202fe3ce944c21cdf4f0b08e944aad4a05bc90ecdbc6dc40609bb4281020',
-  'metadata': {
-    'name': 'TON GUYS',
-#    .......
-    'cover_image': 'https://s.getgems.io/nft/b/c/6369646868bb4790d07bb156/edit/images/63698303c5e149dff20c1dec.png'
-  },
-  'next_item_index': 13986,
-  'owner': {'address': '0:1239440bdcfa24d1fb941ef73f774958e0aed9f559c613f54ba2ddc601e48d55'}
-}
-
-get_nft_items_by_owner_address('EQC2QQD8mjxgKEAv-ZeCiOsii21vWR5BZtLO_LQGFB33gJSt')  -> " list of nft items addresses ! shows nft items were bought by user or were transferred to user's wallet ! "
-
-get_collection_items() -> " list of nft items addresses related to collection wallet "
-
-get_nft_owner() -> " returns address of owner's wallet (if nft on sale or auction it returns nft actual owner, not sale smart contract's address) "
-
-get_items() -> " list of dicts with nfts data. e.g. "
-
-get_items(['EQCX3LvmFxVqz52ByQd1bNjnJ_ZutkTVfWty3RGy3LX0-x2P', 'EQDsz_jnLXePSCZCuzjwH2O3q_fk_rDdkKQXbbTPa_lV3ILJ'])
-
-[{'address': '0:97dcbbe617156acf9d81c907756cd8e727f66eb644d57d6b72dd11b2dcb5f4fb', 'collection': {'address': '0:a0da202fe3ce944c21cdf4f0b08e944aad4a05bc90ecdbc6dc40609bb4281020', 'name': 'TON GUYS', 'description': 'Here we are! Cat and Ufo are the characters in the new, next generation, and customizable NFT collection in the TON ecosystem.', 'image': 'https://s.getgems.io/nft/b/c/6369646868bb4790d07bb156/edit/images/6372fccbe9da2522009914c0.jpg'}, 'collection_address': '0:a0da202fe3ce944c21cdf4f0b08e944aad4a05bc90ecdbc6dc40609bb4281020', 'index': 6464, 'content_url': 'https://server.tonguys.org/nfts/items/6464.json', 'metadata': {'name': 'Netting Shirt', 'description': 'Pretty Sexy-Urbanistic-Fashionable T For Self-Confident Person ', 'image': 'https://boxes.tonguys.org/c_shirt4_5.png', 'model_id': '4', 'color_id': '5', 'id': '27724', 'group_id': '2635', 'image_transparent_url': 'https://server.tonguys.org/nfts/items/cat/shirt4_5.png', 'attributes': [{'trait_type': 'Rarity', 'value': 'Silver'}, {'trait_type': 'Color', 'value': 'Green'}, {'trait_type': 'Class', 'value': 'Shirt'}, {'trait_type': 'Type', 'value': 'Item'}]}, 'owner': {'address': '0:ef4c1974ee4acee7471c9957cd26d9f7333f5bef22b6ef808ad960b097b8a9cd'}, 'sale': {'address': '0:ef4c1974ee4acee7471c9957cd26d9f7333f5bef22b6ef808ad960b097b8a9cd', 'market': {'address': '0:584ee61b2dff0837116d0fcb5078d93964bcbe9c05fd6a141b1bfca5d6a43e18', 'name': 'Getgems Sales'}, 'owner': {'address': '0:8eb8c40e537b664d79fc638874916ee63ed63198c4c836766ed5f6c350d209dc'}, 'price': {'value': '12000000000'}}}, {'address': '0:eccff8e72d778f482642bb38f01f63b7abf7e4feb0dd90a4176db4cf6bf955dc', 'collection': {'address': '0:a0da202fe3ce944c21cdf4f0b08e944aad4a05bc90ecdbc6dc40609bb4281020', 'name': 'TON GUYS', 'description': 'Here we are! Cat and Ufo are the characters in the new, next generation, and customizable NFT collection in the TON ecosystem.', 'image': 'https://s.getgems.io/nft/b/c/6369646868bb4790d07bb156/edit/images/6372fccbe9da2522009914c0.jpg'}, 'collection_address': '0:a0da202fe3ce944c21cdf4f0b08e944aad4a05bc90ecdbc6dc40609bb4281020', 'index': 455, 'content_url': 'https://server.tonguys.org/nfts/items/455.json', 'metadata': {'name': 'UFO #5433', 'description': 'There are rumors that he stole Katnipp from Catopolis -- Reminder! All our garments can fit both Ufo and Katnipp', 'image': 'https://server.tonguys.org/nfts/items/ufo/skin_2308.png', 'combined_items_data': {'eye': [13, 1], 'background': [17, 1], 'body': [5, 1], 'skin': [6, 1]}, 'attributes': [{'trait_type': 'Rarity', 'value': 'Epic'}, {'trait_type': 'Class', 'value': 'Ufo'}, {'trait_type': 'Color', 'value': '5'}, {'trait_type': 'Emotion', 'value': 'Disgusting'}, {'trait_type': 'Background', 'value': 'Colored waterfall'}, {'trait_type': 'Type', 'value': 'Body'}], 'image_background_url': 'https://server.tonguys.org/nfts/items/ufo/background17_1.png'}, 'owner': {'address': '0:952683e5388093d280fa90ec0e501c50e191816db61e2ab1e8319044ff34b448'}, 'sale': {'address': '0:952683e5388093d280fa90ec0e501c50e191816db61e2ab1e8319044ff34b448', 'market': {'address': '0:584ee61b2dff0837116d0fcb5078d93964bcbe9c05fd6a141b1bfca5d6a43e18', 'name': 'Getgems Sales'}, 'owner': {'address': '0:77dfd466be635d4e7e2db7064f447775c48f0155a120653b566b4962d46d357b'}, 'price': {'value': '19500000000'}}}]
-
-"btw this function checks if nft is on sale (GG auction)"
-
+client = TonCenterClient(base_url='http://127.0.0.1:80/', addresses_form)
+or
+client = TonCenterClient(api_key, addresses_form)
 ```
+Notice that TonCenter has Limit 10 RPS with Api Key, so It's highly recommend to use [Local TonCenter](https://github.com/toncenter/ton-http-api) 
+and specify your host in `base_url` parameter.
 
-## Other Functions
 
+### LsClient
+
+**LsClient** gets data from blockhain using [lite servers](https://ton.org/docs/participate/nodes/node-types) (based on [pytonlib](https://github.com/psylopunk/pytonlib))
+To initialize LsClient: 
 ```python
-get_all_wallet_transactions_raw() -> " list of transactions in raw format "
-
-get_all_wallet_transactions() -> " list of transactions in human-readble format, e.g. "
-
-get_all_wallet_transactions(addr='EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxLiE', limit=2)
-[{'type': 'out', 'from': 'EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxLiE', 'to': 'EQDdGjo6KNmYy1TKJIgAitzLM-oMDDgDpngljPhzo1w3-0DB', 'value': 88445575221, 'message': '5P8VUG7tQldpGwRbZk8tMDedLeSfBez3k', 'fee': '5737002', 'timestamp': 1669213512, 'hash': 'x1+vjYIpmnmzmwWMK3PuPaiCnzvSA5MF76lgS9t3+pY='}, {'type': 'out', 'from': 'EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxLiE', 'to': 'EQBc7sxuLW7WA0S1O5Ga0Y19yyj-N7HVn38-_x57DMZ5h9Xi', 'value': 950000000, 'message': 'q4c93IkldxfdzsbBkRzZno0XliRBQgHj2', 'fee': '5729001', 'timestamp': 1669213486, 'hash': 'sks1oNLhbTMl3OXdo9k3bxHGfMNlF+zBaYJQ7J0kvzA='}]
-
-transfer_ton() -> " transfers any amount of ton coins to destination wallet "
+client = LsClient(ls_index=2, default_timeout=30, addresses_form='user_friendly')
+await client.init_tonlib()
 ```
-## Async Functions
+*LsClient* is some more advanced, for e.g. you may need to compile binaries to use it.
 
-All synchronous functions call their asynchronous analogs, so if you need, you can call an asynchronous function at once:
-
+## Contracts
+All _Contracts_ are inherited from the base class **Contract**, which has 
+`.get_transactions(), .run_get_method(), .get_balance(), .get_state()` methods.
+So you can use them with any type of **Contract**:
 ```python
-import asyncio
-from TonTools.funcs import _get_collection, _get_client
+client = TonCenterClient(base_url='http://127.0.0.1:80/')
 
+item = NftItem('EQDzyRLwjasHwP-y5c9rtoVi2iqriu-sbL3080FlCc-XyUG4', provider=client)
+await item.update()
 
-async def main():
-    client = await _get_client(ls=0, timeout=30)
-    collection = await _get_collection(client=client, addr='EQCA14o1-VWhS2efqoh_9M1b_A9DtKTuoqfmkn83AbJzwnPi')
-    return collection
+owner = Wallet(provider=client, address=item.sale.owner)
+transactions = await owner.get_transactions(limit=2)
 
+print(transactions[0], transactions[1])
+# Transaction({"type": "out", "utime": 1677531709, "hash": "h+lVX0qK4T76QtRqC0FWWGhLptgPLM4MjSEbgKODcFc=", "value": 2500.0, "from": "EQBZVBXBpirFPOQ5Wmgi5Es2hDCRAfiT3i5JRy_gVsJOlpZv", "to": "EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka95J1JJwXXf4a8", "comment": "6017835"}) Transaction({"type": "in", "utime": 1677413260, "hash": "erk0nLWW9W3m9boFM+/9v0YSeRz1jJvpyiRQYEgN5AE=", "value": 1e-09, "from": "EQCPGzW1dJURRybL41Q3KYfzX4fZdQUeY8-7-TKyeR7f-7cU", "to": "EQBZVBXBpirFPOQ5Wmgi5Es2hDCRAfiT3i5JRy_gVsJOlpZv", "comment": ""})
 
-asyncio.get_event_loop().run_until_complete(main())
+print(await item.sale.get_balance()) # 75730000
 
 ```
+You can init object of some Contract just specifying `address` and `provider`,
+but to get full data of this object you should call `await object.update()`
 
+### NFT Contracts
+
+There are `NftItem, NftCollection and NftItemSale` classes.
+```python
+item = NftItem('EQDzyRLwjasHwP-y5c9rtoVi2iqriu-sbL3080FlCc-XyUG4', provider=client)
+await item.update()
+
+collection = item.collection
+await collection.update()
+
+print(collection.metadata) #  {"name": "Whales Club", "description": "Collection limited to 10000 utility-enabled NFTs, where the token is your membership to the Whales Club. Join the club and participate in weekly Ambra token giveaways, have access to the most profitable Ton Whales decentralized staking pools and many other useful club privileges.", "external_link": "https://tonwhales.com/club", "external_url": "https://tonwhales.com/club", "image": "ipfs://QmZc5PwuyVKSV4urDTArqfDbkGVjkKs6q4dBk8kpPt1bqD/logo.gif", "social_links": ["https://t.me/tonwhalesnft", "https://t.me/tonwhalesnften", "https://twitter.com/whalescorp"], "cover_image": "ipfs://QmZc5PwuyVKSV4urDTArqfDbkGVjkKs6q4dBk8kpPt1bqD/cover.gif"}
+items = await collection.get_collection_items()
+print(len(items), items[0])  # 1621 NftItem({"address": "EQD6ufFjSIUJSkbVuV7w00ORT8UvoMLQ9RDZ1lJ8sYh3cOIx"})
+
+sale = item.sale
+print(sale.price_value, sale.owner) #  200000000000 EQBZVBXBpirFPOQ5Wmgi5Es2hDCRAfiT3i5JRy_gVsJOlpZv
+```
+
+### Jetton Contracts
+There are `Jetton and JettonWallet` classes.
+```python
+client = LsClient(ls_index=2, default_timeout=30)
+await client.init_tonlib()
+
+jetton = Jetton('EQBl3gg6AAdjgjO2ZoNU5Q5EzUIl8XMNZrix8Z5dJmkHUfxI', provider=client)
+print(jetton)  # Jetton({"address": "EQBl3gg6AAdjgjO2ZoNU5Q5EzUIl8XMNZrix8Z5dJmkHUfxI"})
+
+await jetton.update()
+print(jetton)  # Jetton({"supply": 4600000000000000000, "address": "EQBl3gg6AAdjgjO2ZoNU5Q5EzUIl8XMNZrix8Z5dJmkHUfxI", "decimals": 9, "symbol": "LAVE", "name": "Lavandos", "description": "This is a universal token for use in all areas of the decentralized Internet in the TON blockchain, web3, Telegram bots, TON sites. Issue of 4.6 billion coins. Telegram channels: Englishversion: @lave_eng \u0420\u0443\u0441\u0441\u043a\u043e\u044f\u0437\u044b\u0447\u043d\u0430\u044f \u0432\u0435\u0440\u0441\u0438\u044f: @lavet", "image": "https://i.ibb.co/Bj5KqK4/IMG-20221213-115545-207.png", "token_supply": 4600000000.0})
+
+jetton_wallet = await jetton.get_jetton_wallet('EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG')  # for TonCenterClient and LsClient
+print(jetton_wallet)  # JettonWallet({"address": "EQDgCBnCncRp4jOi3CMeLn-b71gymAX3W28YZT3Dn0a2dKj-"})
+
+await jetton_wallet.update()
+print(jetton_wallet)  # JettonWallet({"address": "EQDgCBnCncRp4jOi3CMeLn-b71gymAX3W28YZT3Dn0a2dKj-", "balance": 10000000000000, "owner": "EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG", "jetton_master_address": "EQBl3gg6AAdjgjO2ZoNU5Q5EzUIl8XMNZrix8Z5dJmkHUfxI"})
+
+my_wallet_mnemonics = []
+my_wallet = Wallet(provider=client, mnemonics=my_wallet_mnemonics, version='v4r2')
+await my_wallet.transfer_jetton(destination_address='address', jetton_master_address=jetton.address, jettons_amount=1000, fee=0.15)  # for TonCenterClient and LsClient
+await my_wallet.transfer_jetton_by_jetton_wallet(destination_address='address', jetton_wallet='your jetton wallet address', jettons_amount=1000, fee=0.1)  # for all clients
+```
+
+
+### Wallet contracts
+Currently there is only `Wallet` class (will add HighLoadWallet and MultiSigWallet in future versions).
+
+You can create new wallet just calling `Wallet(provider, wallet_version)`, check existing wallet `Wallet(provider, address)` or enter wallet `Wallet(provider, mnemonics, wallet_version)`
+```python
+client = LsClient(ls_index=2, default_timeout=20)
+await client.init_tonlib()
+
+my_wallet_mnemonics = []
+my_wallet = Wallet(provider=client, mnemonics=my_wallet_mnemonics, version='v4r2')
+my_wallet_nano_balance = await my_wallet.get_balance()
+
+new_wallet = Wallet(provider=client)
+print(new_wallet.address, new_wallet.mnemonics, my_wallet_nano_balance)  # EQBcMK8CBrZKfSYdvT8FDVo1TxZV_d3Lz-xPyGp8c7mUacko ['federal', 'memory', 'scare', 'exact', 'extend', 'rain', 'private', 'ribbon', 'inspire', 'capital', 'arrow', 'glimpse', 'toy', 'double', 'man', 'speak', 'imitate', 'hint', 'dinner', 'oblige', 'rather', 'answer', 'unfold', 'small'] 496348289
+
+non_bounceable_new_wallet_address = Address(new_wallet.address).to_string(True, True, False)
+await my_wallet.transfer_ton(destination_address=non_bounceable_new_wallet_address, amount=0.02, message='just random comment')
+await new_wallet.deploy()
+
+print(await new_wallet.get_state())  # active
+```
+
+### Transactions
+There is class `Transaction` which has `.to_dict()` and `.to_dict_user_friendly()` methods.
+The first one returns full data of transaction, and the second one only useful data of transaction
+```python
+client = TonApiClient()
+wallet = Wallet(provider=client, address='EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG')
+trs = await wallet.get_transactions(limit=1) 
+print(trs[0].to_dict())  # {'utime': 1677658702, 'fee': 7384081, 'data': 'a lot of bytes :)', 'hash': 'skqFysIHksJDkH8Sy4UAKmQSuW95WGS6V/XD/QaJCdE=', 'in_msg': {'created_lt': 35690250000001, 'source': '', 'destination': 'EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', 'value': 0, 'msg_data': 'a lot of bytes :'}, 'out_msgs': [{'created_lt': 35690250000002, 'source': 'EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', 'destination': 'EQDgCBnCncRp4jOi3CMeLn-b71gymAX3W28YZT3Dn0a2dKj-', 'value': 100000000, 'msg_data': 'te6ccgEBAQEAVwAAqg+KfqUAAAAAAAAAAF6NSlEACADvv6jNfMa6nPxbbgyeiO7riR4Cq0JAynas1pLFqNpq9wAd9/UZr5jXU5+LbcGT0R3dcSPAVWhIGU7VmtJYtRtNXsA='}]}
+print(trs[0].to_dict_user_friendly())  # {'type': 'out', 'utime': 1677658702, 'hash': 'skqFysIHksJDkH8Sy4UAKmQSuW95WGS6V/XD/QaJCdE=', 'value': 0.1, 'from': 'EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', 'to': 'EQDgCBnCncRp4jOi3CMeLn-b71gymAX3W28YZT3Dn0a2dKj-', 'comment': ''}
+```
+_Note:_ `.to_dict_user_friendly()` works good with many recipients in one transaction
 ## Donations
 __TON__ - EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG
-
-__BTC__ - bc1qhpqkdftgd85zqx6hdfnm0smdyczp4yr3mqn3lq
