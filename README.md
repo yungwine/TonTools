@@ -57,6 +57,7 @@ and specify your host in `base_url` parameter.
 ### LsClient
 
 **LsClient** gets data from blockhain using [lite servers](https://ton.org/docs/participate/nodes/node-types) (based on [pytonlib](https://github.com/psylopunk/pytonlib))
+
 To initialize LsClient: 
 ```python
 client = LsClient(ls_index=2, default_timeout=30, addresses_form='user_friendly')
