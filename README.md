@@ -44,7 +44,7 @@ you should use it if you want to scan a lot of _transactions_ and _contracts_
 
 [TonCenter](https://toncenter.com/api/v2/) is an Api which uses [lite servers](https://ton.org/docs/participate/nodes/node-types)
 
-To initialize TonApiClient: 
+To initialize TonCenterClient: 
 ```python
 client = TonCenterClient(base_url='http://127.0.0.1:80/', addresses_form)
 or
