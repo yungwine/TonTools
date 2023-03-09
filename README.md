@@ -4,7 +4,7 @@ __TonTools__ is a _high-level_ OOP library for Python, which can be used to inte
 
 [comment]: <> ([![PyPI version]&#40;https://badge.fury.io/py/tontools.svg&#41;]&#40;https://badge.fury.io/py/tontools&#41;)
 
-[![PyPI version](https://badge.fury.io/py/tontools.svg)](https://badge.fury.io/py/tontools) ![visitors](https://visitor-badge.glitch.me/badge?page\_id=yungwine.tontools.readme\&left\_color=gray\&right\_color=red) ![](https://pepy.tech/badge/tontools) [![](https://img.shields.io/badge/%F0%9F%92%8E-TON-green)](https://ton.org)
+[![PyPI version](https://badge.fury.io/py/tontools.svg)](https://badge.fury.io/py/tontools) ![visitors](https://visitor-badge.glitch.me/badge?page\_id=yungwine.tontools.readme\&left\_color=gray\&right\_color=red) ![](https://pepy.tech/badge/tontools) [![Downloads](https://static.pepy.tech/badge/tontools/month)](https://pepy.tech/project/tontools) [![](https://img.shields.io/badge/%F0%9F%92%8E-TON-grey)](https://ton.org)
 ## How to install:
 
 ```bash
