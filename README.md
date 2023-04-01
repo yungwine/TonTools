@@ -153,14 +153,16 @@ print(await new_wallet.get_state())  # active
 ```
 
 ### Transactions
-There is class `Transaction` which has `.to_dict()` and `.to_dict_user_friendly()` methods.
+Class `Transaction` has `.to_dict()` and `.to_dict_user_friendly()` methods.
 The first one returns full data of transaction, and the second one only useful data of transaction
+
+*status* - True if computation and action phases have returned zero code.
 ```python
 client = TonApiClient()
 wallet = Wallet(provider=client, address='EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG')
 trs = await wallet.get_transactions(limit=1) 
 print(trs[0].to_dict())  # {'utime': 1677658702, 'fee': 7384081, 'data': 'a lot of bytes :)', 'hash': 'skqFysIHksJDkH8Sy4UAKmQSuW95WGS6V/XD/QaJCdE=', 'in_msg': {'created_lt': 35690250000001, 'source': '', 'destination': 'EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', 'value': 0, 'msg_data': 'a lot of bytes :'}, 'out_msgs': [{'created_lt': 35690250000002, 'source': 'EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', 'destination': 'EQDgCBnCncRp4jOi3CMeLn-b71gymAX3W28YZT3Dn0a2dKj-', 'value': 100000000, 'msg_data': 'te6ccgEBAQEAVwAAqg+KfqUAAAAAAAAAAF6NSlEACADvv6jNfMa6nPxbbgyeiO7riR4Cq0JAynas1pLFqNpq9wAd9/UZr5jXU5+LbcGT0R3dcSPAVWhIGU7VmtJYtRtNXsA='}]}
-print(trs[0].to_dict_user_friendly())  # {'type': 'out', 'utime': 1677658702, 'hash': 'skqFysIHksJDkH8Sy4UAKmQSuW95WGS6V/XD/QaJCdE=', 'value': 0.1, 'from': 'EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', 'to': 'EQDgCBnCncRp4jOi3CMeLn-b71gymAX3W28YZT3Dn0a2dKj-', 'comment': ''}
+print(trs[0].to_dict_user_friendly())  # {'type': 'out', 'utime': 1677658702, 'status': True, 'hash': 'skqFysIHksJDkH8Sy4UAKmQSuW95WGS6V/XD/QaJCdE=', 'value': 0.1, 'from': 'EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', 'to': 'EQDgCBnCncRp4jOi3CMeLn-b71gymAX3W28YZT3Dn0a2dKj-', 'comment': ''}
 ```
 _Note:_ `.to_dict_user_friendly()` works good with many recipients in one transaction
 ## Donations

@@ -2,6 +2,7 @@ import base64
 import json
 
 from tonsdk.utils import Address, InvalidAddressError
+from .utils import transaction_status
 
 
 def isBase64(sb):
@@ -61,6 +62,7 @@ class Transaction:
         self.data = data['data']
         self.hash = data['hash']
         self.lt = data['lt']
+        self.status = transaction_status(data['data'])
         self.in_msg = InMsg(data['in_msg'])
         self.out_msgs = [OutMsg(out_msg) for out_msg in data['out_msgs']]
 
@@ -79,6 +81,7 @@ class Transaction:
             return {
                 'type': 'in',
                 'utime': self.utime,
+                'status': self.status,
                 'hash': self.hash,
                 'value': int(self.in_msg.value) / 10**9,
                 'from': self.in_msg.source,
@@ -89,6 +92,7 @@ class Transaction:
             return {
                 'type': 'out',
                 'utime': self.utime,
+                'status': self.status,
                 'hash': self.hash,
                 'value': int(self.out_msgs[0].value) / 10**9 if len(self.out_msgs) == 1 else [int(out_msg.value) / 10**9 for out_msg in self.out_msgs],
                 'from': self.out_msgs[0].source,

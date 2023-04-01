@@ -1,6 +1,3 @@
-from .funcs import *
-from .utils import *
-# from .Contracts.jettons import *
 from .Contracts.Contract import *
 from .Contracts.NFT import *
 from .Contracts.Jetton import *
