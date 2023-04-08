@@ -23,7 +23,7 @@ class Jetton(Contract):
             self.symbol = data['symbol']
             self.name = data['name']
             self.description = data['description']
-            self.image = data['image']
+            self.image = data['image'] if 'image' in data else data.get('image_data')
             self.token_supply = self.supply / 10 ** self.decimals
 
     def is_full(self):

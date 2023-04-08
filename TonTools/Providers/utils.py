@@ -37,7 +37,7 @@ async def get(url: str):
         url = 'https://ipfs.io/ipfs/' + url.split('ipfs://')[-1]
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            return await response.json()
+            return await response.json(content_type=None)
 
 markets_adresses = {
     '0:584ee61b2dff0837116d0fcb5078d93964bcbe9c05fd6a141b1bfca5d6a43e18': 'Getgems Sales',
