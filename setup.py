@@ -5,7 +5,7 @@ requirements = ["tonsdk>=1.0.11", "ton>=0.26", "aiohttp>=3.8.1", "setuptools>=65
 
 setup(
     name='TonTools',
-    version='2.0.5',
+    version='2.0.6',
     packages=['TonTools', 'TonTools/Contracts', 'TonTools/Providers'],
     url='',
     license='MIT License',
