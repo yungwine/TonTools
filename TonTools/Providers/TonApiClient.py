@@ -59,7 +59,7 @@ class TonApiClient:
         async with aiohttp.ClientSession() as session:
             url = self.base_url + 'nft/getItems'
             params = {
-                'addresses': nft_addresses
+                'addresses': ','.join(nft_addresses)
             }
             response = await session.get(url=url, params=params, headers=self.headers)
             response = await process_response(response)
