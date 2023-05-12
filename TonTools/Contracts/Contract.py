@@ -1,8 +1,9 @@
 import base64
 import json
 
-from tonsdk.utils import Address, InvalidAddressError
-from .utils import transaction_status
+from tonsdk.utils import Address, InvalidAddressError, b64str_to_bytes
+from tonsdk.boc import Cell, Slice
+from .utils import transaction_status, known_prefixes
 
 
 def isBase64(sb):
@@ -19,40 +20,60 @@ def isBase64(sb):
         return False
 
 
-class InMsg:
+def is_boc(b64str: str):
+    try:
+        Cell.one_from_boc(b64str_to_bytes(b64str))
+        return True
+    except:
+        return False
+
+
+class Msg:
     def __init__(self, data: dict):
         self.created_lt = data['created_lt']
         self.source = data['source']
         self.destination = data['destination']
         self.value = data['value']
-        self.msg_data = base64.b64decode(data['msg_data']).decode().split('\x00')[-1] if isBase64(data['msg_data']) else data['msg_data']
+        self.msg_data = base64.b64decode(data['msg_data']).decode().split('\x00')[-1] if not is_boc(data['msg_data']) else data['msg_data']
+
+    def try_detect_type(self):
+        op = self.try_get_op()
+        return known_prefixes.get(op)
+
+    def try_get_op(self):
+        if not self.msg_data:
+            return None
+        if not is_boc(self.msg_data):
+            op = '000000'
+        else:
+            slice = Cell.one_from_boc(b64str_to_bytes(self.msg_data)).begin_parse()
+            if len(slice) >= 32:
+                op = slice.read_bytes(4).hex()
+            else:
+                return None
+        return op
 
     def to_dict(self):
         return {
-                'created_lt': self.created_lt,
-                'source': self.source,
-                'destination': self.destination,
-                'value': self.value,
-                'msg_data': self.msg_data
-            }
+            'created_lt': self.created_lt,
+            'source': self.source,
+            'destination': self.destination,
+            'value': self.value,
+            'msg_data': self.msg_data,
+            'type': self.try_detect_type()
+        }
 
 
-class OutMsg:
-    def __init__(self, data: dict):
-        self.created_lt = data['created_lt']
-        self.source = data['source']
-        self.destination = data['destination']
-        self.value = data['value']
-        self.msg_data = base64.b64decode(data['msg_data']).decode().split('\x00')[-1] if isBase64(data['msg_data']) else data['msg_data']
+class InMsg(Msg):
 
-    def to_dict(self):
-        return {
-                'created_lt': self.created_lt,
-                'source': self.source,
-                'destination': self.destination,
-                'value': self.value,
-                'msg_data': self.msg_data
-            }
+    def is_external(self) -> bool:
+        if not self.source:
+            return True
+        return False
+
+
+class OutMsg(Msg):
+    pass
 
 
 class Transaction:
@@ -102,6 +123,9 @@ class Transaction:
 
     def __str__(self):
         return 'Transaction(' + json.dumps(self.to_dict_user_friendly()) + ')'
+
+    def __repr__(self):
+        return 'Transaction(' + json.dumps(self.to_dict()) + ')'
 
 
 class ContractError(BaseException):

@@ -24,3 +24,18 @@ def is_hex(string: str):
     except ValueError:
         return False
     return True
+
+
+known_prefixes = {
+    '00000000': 'TextCommentMessage',
+    '5fcc3d14': 'NftTransferMessage',
+    'd53276db': 'ExcessesMessage',
+    '05138d91': 'NftOwnershipAssignedMessage',
+    '2fcb26a2': 'NftGetStaticDataMessage',
+    '8b771735': 'NftReportStaticDataMessage',
+    '0f8a7ea5': 'JettonTransferMessage',
+    '7362d09c': 'JettonTransferNotificationMessage',
+    '595f07bc': 'JettonBurnMessage',
+    '178d4519': 'JettonInternalTransferMessage',
+    '7bdd97de': 'JettonBurnNotificationMessage'
+}

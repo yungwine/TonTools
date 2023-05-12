@@ -154,7 +154,7 @@ print(await new_wallet.get_state())  # active
 
 ### Transactions
 Class `Transaction` has `.to_dict()` and `.to_dict_user_friendly()` methods.
-The first one returns full data of transaction, and the second one only useful data of transaction
+The first one returns full data of transaction, and the second one only user-friendly data of transaction
 
 *status* - True if computation and action phases have returned zero code.
 ```python
@@ -165,5 +165,16 @@ print(trs[0].to_dict())  # {'utime': 1677658702, 'fee': 7384081, 'data': 'a lot 
 print(trs[0].to_dict_user_friendly())  # {'type': 'out', 'utime': 1677658702, 'status': True, 'hash': 'skqFysIHksJDkH8Sy4UAKmQSuW95WGS6V/XD/QaJCdE=', 'value': 0.1, 'from': 'EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', 'to': 'EQDgCBnCncRp4jOi3CMeLn-b71gymAX3W28YZT3Dn0a2dKj-', 'comment': ''}
 ```
 _Note:_ `.to_dict_user_friendly()` works good with many recipients in one transaction
+#### Messages
+You can check the type of message using `.try_detect_type()` method.
+```python
+client = TonCenterClient()
+
+contract = Contract('EQB5DER03H1uhKGX6BJh_IWa_zV9MzvH2lcy6t30tZ9k4RSL', client)
+print((await contract.get_transactions())[-1].in_msg.try_detect_type())  # JettonTransferNotificationMessage
+
+contract = Contract('EQB5QP6tAVlWBXKhMN9TynyusIR8_oTuN10NozaOfpFzAXDj', client)
+print((await contract.get_transactions())[-1].in_msg.try_detect_type())  # JettonInternalTransferMessage
+```
 ## Donations
 __TON__ - EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG
