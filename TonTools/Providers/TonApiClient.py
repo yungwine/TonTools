@@ -25,9 +25,16 @@ async def process_response(response: aiohttp.ClientResponse):
 
 
 class TonApiClient:
-    def __init__(self, key: str = None, addresses_form='user_friendly'):  # adresses_form could be 'raw' or 'user_friendly'
+    def __init__(self,
+                 key: str = None,  # api key from tonapi
+                 addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'
+                 testnet=False
+                 ):
         self.form = addresses_form
-        self.base_url = 'https://tonapi.io/v1/'
+        if testnet:
+            self.base_url = 'https://testnet.tonapi.io/v1/'
+        else:
+            self.base_url = 'https://tonapi.io/v1/'
         if key:
             self.headers = {
                 'Authorization': 'Bearer ' + key

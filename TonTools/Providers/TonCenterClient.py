@@ -35,10 +35,27 @@ async def process_response(response: aiohttp.ClientResponse):
 
 class TonCenterClient:
 
-    def __init__(self, key: str = None, addresses_form='user_friendly', base_url='https://toncenter.com/api/v2/'):  # adresses_form could be 'raw' or 'user_friendly'
+    def __init__(self,
+                 key: str = None,
+                 addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'.
+                 base_url=None,
+                 testnet=False
+                 ):
         self.form = addresses_form
         self.delay = 0
         self.base_url = base_url
+        if testnet:
+            self.testnet = True
+            if base_url is None:
+                self.base_url = 'https://testnet.toncenter.com/api/v2/'
+            else:
+                self.base_url = base_url
+        else:
+            self.testnet = False
+            if base_url is None:
+                self.base_url = 'https://toncenter.com/api/v2/'
+            else:
+                self.base_url = base_url
         if key:
             self.headers = {
                 'X-API-Key': key
@@ -47,10 +64,13 @@ class TonCenterClient:
             self.headers = {}
 
     def _process_address(self, address):
-        if self.form == 'user_friendly':
-            return Address(address).to_string(True, True, True)
-        elif self.form == 'raw':
+        if self.form == 'raw':
             return Address(address).to_string(is_user_friendly=False)
+        elif self.form == 'user_friendly':
+            if self.testnet:
+                return Address(address).to_string(True, True, True, True)
+            else:
+                return Address(address).to_string(True, True, True)
 
     def set_delay(self, delay: float = 0.1):
         self.delay = delay
