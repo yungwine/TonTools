@@ -32,8 +32,10 @@ class TonApiClient:
                  ):
         self.form = addresses_form
         if testnet:
+            self.testnet = True
             self.base_url = 'https://testnet.tonapi.io/v1/'
         else:
+            self.testnet = False
             self.base_url = 'https://tonapi.io/v1/'
         if key:
             self.headers = {
@@ -43,10 +45,13 @@ class TonApiClient:
             self.headers = {}
 
     def _process_address(self, address):
-        if self.form == 'user_friendly':
-            return Address(address).to_string(True, True, True)
-        elif self.form == 'raw':
+        if self.form == 'raw':
             return Address(address).to_string(is_user_friendly=False)
+        elif self.form == 'user_friendly':
+            if self.testnet:
+                return Address(address).to_string(True, True, True, True)
+            else:
+                return Address(address).to_string(True, True, True)
 
     async def get_nft_owner(self, nft_address: str):
         async with aiohttp.ClientSession() as session:
