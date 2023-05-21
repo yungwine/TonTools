@@ -10,3 +10,4 @@ TonTools/Contracts/__pycache__/
 dist/
 examples/Jetton/.keystore/
 TonTools/__pycache__/
+/test/

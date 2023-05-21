@@ -35,6 +35,7 @@ class Msg:
         self.destination = data['destination']
         self.value = data['value']
         self.msg_data = base64.b64decode(data['msg_data']).decode().split('\x00')[-1] if not is_boc(data['msg_data']) else data['msg_data']
+        self.op_code = self.try_get_op() if 'op_code' not in data else data['op_code']
 
     def try_detect_type(self):
         op = self.try_get_op()
@@ -83,7 +84,7 @@ class Transaction:
         self.data = data['data']
         self.hash = data['hash']
         self.lt = data['lt']
-        self.status = transaction_status(data['data'])
+        self.status = transaction_status(data['data']) if 'status' not in data else data['status']
         self.in_msg = InMsg(data['in_msg'])
         self.out_msgs = [OutMsg(out_msg) for out_msg in data['out_msgs']]
 
@@ -143,7 +144,7 @@ class Contract:
 
     async def run_get_method(self, method: str, stack: list):  # TonCenterClient or LsClient required
         """
-        Please, note that currently the response types for TonCenterClient and LsClient are different.
+        Please, note that currently the response types for TonCenterClient, LsClient and DtonClient are different.
         Will be improved in future versions.
         """
         return await self.provider.run_get_method(method=method, address=self.address, stack=stack)
