@@ -22,23 +22,15 @@ With __TonTools__ you can:
 ## Examples
 You can find them in `examples/` directory.
 
+## Donations
+__TON__ - EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG
+
 ## Providers
 
-__TonTools__ gets data from blockchain using Providers: [TonApiClient](https://tonapi.io/swagger-ui), [TonCenterClient](https://toncenter.com/api/v2/)
-and [LsClient](https://ton.org/docs/participate/nodes/node-types)
+__TonTools__ gets data from blockchain using Providers: [TonCenterClient](https://toncenter.com/api/v2/), [LsClient](https://ton.org/docs/participate/nodes/node-types),
+[DtonClient](https://docs.dton.io/dton/) and [TonApiClient](https://tonapi.io/swagger-ui) 
 
 Most provider methods are the same, but there are some differences.
-### TonApiClient
-
-[TonApi](https://tonapi.io/swagger-ui) is a high level Api to interact with TON. 
-
-To initialize TonApiClient: 
-```python
-client = TonApiClient(api_key, addresses_form)
-```
-`TonApiClient` hasn't `run_get_method` method, but it fast (cause of indexator), so 
-you should use it if you want to scan a lot of _transactions_ and _contracts_  
-
 
 ### TonCenterClient
 
@@ -46,13 +38,12 @@ you should use it if you want to scan a lot of _transactions_ and _contracts_
 
 To initialize TonCenterClient: 
 ```python
-client = TonCenterClient(base_url='http://127.0.0.1:80/', addresses_form)
+client = TonCenterClient(base_url='http://127.0.0.1:80/', addresses_form=addresses_form)
 or
 client = TonCenterClient(api_key, addresses_form)
 ```
 Notice that TonCenter has Limit 10 RPS with Api Key, so It's highly recommend to use [Local TonCenter](https://github.com/toncenter/ton-http-api) 
 and specify your host in `base_url` parameter.
-
 
 ### LsClient
 
@@ -64,6 +55,40 @@ client = LsClient(ls_index=2, default_timeout=30, addresses_form='user_friendly'
 await client.init_tonlib()
 ```
 *LsClient* is some more advanced, for e.g. you may need to compile binaries to use it.
+
+### DtonClient
+[Dton](https://tonapi.io/swagger-ui) is a high level indexing GraphQL Api. 
+
+To initialize DtonClient:
+```python
+client = DtonClient(
+    key: str = None,  # dton api key
+    addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'
+    testnet=False,  # if testnet, all addresses will be in testnet form and base url will start with https://testnet.dton.io/
+    private_graphql=False  # you can use private_graphql if you have an api key
+)
+```
+**_Note:_** Dton currently doesn't support sending messages to blockchain, so you can't, for example, transfer toncoins using this provider
+
+
+### TonApiClient - currently v1
+
+**_Note:_** in future TonApiClient will be overwritten to use v2 methods
+and current TonApiClient will be renamed into TonApiClientV1, because tonapi v1 endpoints
+soon will become unsupported
+
+[TonApi](https://tonapi.io/swagger-ui) is a high level indexing Api. 
+
+To initialize TonApiClient: 
+```python
+client = TonApiClient(api_key, addresses_form)
+```
+`TonApiClient` hasn't `run_get_method` method, but it fast (cause of indexator), so 
+you should use it if you want to scan a lot of _transactions_ and _contracts_  
+
+
+
+
 
 ## Contracts
 All _Contracts_ are inherited from the base class **Contract**, which has 
@@ -176,5 +201,3 @@ print((await contract.get_transactions())[-1].in_msg.try_detect_type())  # Jetto
 contract = Contract('EQB5QP6tAVlWBXKhMN9TynyusIR8_oTuN10NozaOfpFzAXDj', client)
 print((await contract.get_transactions())[-1].in_msg.try_detect_type())  # JettonInternalTransferMessage
 ```
-## Donations
-__TON__ - EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG
