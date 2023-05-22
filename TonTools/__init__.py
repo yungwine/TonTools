@@ -6,6 +6,6 @@ from .Contracts.Wallet import *
 from .Providers.LsClient import *
 from .Providers.TonApiClient import *
 from .Providers.TonCenterClient import *
-
+from .Providers.DtonClient import *
 
 #  docs https://github.com/yungwine/TonTools

@@ -25,9 +25,18 @@ async def process_response(response: aiohttp.ClientResponse):
 
 
 class TonApiClient:
-    def __init__(self, key: str = None, addresses_form='user_friendly'):  # adresses_form could be 'raw' or 'user_friendly'
+    def __init__(self,
+                 key: str = None,  # api key from tonapi
+                 addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'
+                 testnet=False
+                 ):
         self.form = addresses_form
-        self.base_url = 'https://tonapi.io/v1/'
+        if testnet:
+            self.testnet = True
+            self.base_url = 'https://testnet.tonapi.io/v1/'
+        else:
+            self.testnet = False
+            self.base_url = 'https://tonapi.io/v1/'
         if key:
             self.headers = {
                 'Authorization': 'Bearer ' + key
@@ -36,10 +45,13 @@ class TonApiClient:
             self.headers = {}
 
     def _process_address(self, address):
-        if self.form == 'user_friendly':
-            return Address(address).to_string(True, True, True)
-        elif self.form == 'raw':
+        if self.form == 'raw':
             return Address(address).to_string(is_user_friendly=False)
+        elif self.form == 'user_friendly':
+            if self.testnet:
+                return Address(address).to_string(True, True, True, True)
+            else:
+                return Address(address).to_string(True, True, True)
 
     async def get_nft_owner(self, nft_address: str):
         async with aiohttp.ClientSession() as session:
