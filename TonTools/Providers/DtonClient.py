@@ -324,13 +324,13 @@ class DtonClient:
             result.append(NftItem(self._process_address(self.get_addr_from_wc_hex(Address(collection.address).wc, item['address'])), self))
         return result
 
-    async def get_transactions(self, address: str, limit: int = 10**9):
-
+    async def get_transactions(self, address: str, limit: int = 10**9, limit_per_one_request: int = 150):
         query = '''
-            query get_transactions ($address: String, $limit: Int) {
+            query get_transactions ($address: String, $limit: Int, $page: Int) {
                 transactions (
                     address_friendly: $address
                     page_size: $limit
+                    page: $page
                 )   {
                     # general info
         
@@ -375,34 +375,53 @@ class DtonClient:
                 }
             }
         '''
+
+        i = 0
+
         var = {
             'address': self.get_friendly(address),
-            'limit': limit
+            'limit': limit,
+            'page': i
         }
-        transactions = (await self.send_query(query, var))['transactions']
+
+        temp = (await self.send_query(query, var))['transactions']
+        transactions = temp
+        while len(temp) != 0:
+            i += 1
+            var = {
+                'address': self.get_friendly(address),
+                'limit': limit,
+                'page': i
+            }
+
+            temp = (await self.send_query(query, var))['transactions']
+            transactions += temp
+
         result = []
         for tr in transactions:
             # dton cuts first 32 bits in msg body if there is an op code,
             # so we create new cell with them in the beginning
 
             if tr['in_msg_op_code'] is not None and tr['in_msg_body']:
-                cell = Cell()
-                cell.bits.write_uint(int(tr['in_msg_op_code']), 32)
-                cell.write_cell(Cell.one_from_boc(b64str_to_bytes(tr['in_msg_body'])))
-                tr['in_msg_body'] = bytes_to_b64str(cell.to_boc())
+                if 1023 - len(Cell.one_from_boc(b64str_to_bytes(tr['in_msg_body'])).begin_parse()) >= 32:
+                    cell = Cell()
+                    cell.bits.write_uint(int(tr['in_msg_op_code']), 32)
+                    cell.write_cell(Cell.one_from_boc(b64str_to_bytes(tr['in_msg_body'])))
+                    tr['in_msg_body'] = bytes_to_b64str(cell.to_boc())
             for i in range(tr['outmsg_cnt']):
                 if tr['out_msg_op_code'][i] is not None and tr['out_msg_body'][i]:
-                    cell = Cell()
-                    cell.bits.write_uint(int(tr['out_msg_op_code'][i]), 32)
-                    cell.write_cell(Cell.one_from_boc(b64str_to_bytes(tr['out_msg_body'][i])))
-                    tr['out_msg_body'][i] = bytes_to_b64str(cell.to_boc())
+                    if 1023 - len(Cell.one_from_boc(b64str_to_bytes(tr['out_msg_body'][i])).begin_parse()) >= 32:
+                        cell = Cell()
+                        cell.bits.write_uint(int(tr['out_msg_op_code'][i]), 32)
+                        cell.write_cell(Cell.one_from_boc(b64str_to_bytes(tr['out_msg_body'][i])))
+                        tr['out_msg_body'][i] = bytes_to_b64str(cell.to_boc())
 
             temp = {
                 'utime': int(datetime.fromisoformat(tr['utime'] + '+03:00').timestamp()),
                 'fee': tr['fee'],
                 'data': None,
                 'hash': base64.b64encode(s=bytearray.fromhex(tr['hash'])).decode(),
-                'lt': tr['lt'],
+                'lt': int(tr['lt']),
                 'status': tr['compute_ph_success'] and tr['action_ph_success'],
                 'in_msg': {
                     'created_lt': tr['in_msg_created_lt'],
