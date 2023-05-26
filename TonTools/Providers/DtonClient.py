@@ -380,17 +380,17 @@ class DtonClient:
 
         var = {
             'address': self.get_friendly(address),
-            'limit': limit,
+            'limit': limit_per_one_request,
             'page': i
         }
 
         temp = (await self.send_query(query, var))['transactions']
         transactions = temp
-        while len(temp) != 0:
+        while len(temp) != 0 and len(transactions) < limit:
             i += 1
             var = {
                 'address': self.get_friendly(address),
-                'limit': limit,
+                'limit': limit_per_one_request,
                 'page': i
             }
 
