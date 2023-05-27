@@ -57,7 +57,7 @@ await client.init_tonlib()
 *LsClient* is some more advanced, for e.g. you may need to compile binaries to use it.
 
 ### DtonClient
-[Dton](https://tonapi.io/swagger-ui) is a high level indexing GraphQL Api. 
+[Dton](https://docs.dton.io/dton) is a high level indexing GraphQL Api. 
 
 To initialize DtonClient:
 ```python
