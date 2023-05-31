@@ -143,7 +143,6 @@ class DtonClient:
             type=type,
             queries=[sub_query]
         ).render()
-        print(query)
 
         result = await self.send_query(query)
         return result[table_name]
