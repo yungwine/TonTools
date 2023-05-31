@@ -122,14 +122,6 @@ class DtonClient:
         return result
 
     async def raw_send_query(self, table_name: str, fields: list, type="query", **kwargs):
-
-        # for k, v in kwargs.items():
-        #     if isinstance(v, str):
-        #         v = f'"{v}"'
-        #     if isinstance(v, bool):
-        #         v = 'true' if v else 'false'
-        #     arguments.append(Argument(name=k, value=v))
-
         result_args = self.process_args(kwargs)
         result_fields = self.process_fields(fields)
 
@@ -210,24 +202,6 @@ class DtonClient:
         return await self.raw_send_query('run_method', fields, 'mutation', **kwargs)
 
     async def run_get_method(self, address: str, method: str, stack: list):
-        query = '''
-            mutation get_method ($address: String, $method: String, $stack: [StackEntryInput]) {
-                run_method (
-                    account_search_by_address: {address_friendly: $address}
-                    method_name: $method
-                    stack: $stack
-                )	{
-                    exit_code
-                    gas_used
-                    vm_steps
-                    success
-                    stack {
-                      value_type
-                      value
-                    }
-                }
-            }
-        '''
         data = await self.raw_run_method(
             fields=['exit_code', 'gas_used', 'vm_steps', 'success', {'stack': ['value_type', 'value']}],
             account_search_by_address={'address_friendly': self.get_friendly(address)}, method_name=method, stack=stack
