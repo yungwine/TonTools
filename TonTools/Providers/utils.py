@@ -12,6 +12,14 @@ from ton import TonlibClient
 from ton.utils.cell import read_address
 
 
+def is_hex(str):
+    try:
+        int(str, 16)
+        return True
+    except:
+        return False
+
+
 def process_jetton_data(data):
     if not len(Cell.one_from_boc(b64decode(data)).refs):
         url = Cell.one_from_boc(b64decode(data)).bits.get_top_upped_array().decode().split('\x01')[-1]

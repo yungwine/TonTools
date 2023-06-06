@@ -84,7 +84,7 @@ class JettonWallet(Contract):
             self.jetton_master_address = data['jetton_master_address']
             self.jetton_master_wallet = Jetton(self.jetton_master_address, self.provider)
             self.balance = data['balance']
-            self.jetton_wallet_code = data['jetton_wallet_code']
+            self.jetton_wallet_code = data.get('jetton_wallet_code')
             self.owner = data['owner']
 
     def is_full(self):
