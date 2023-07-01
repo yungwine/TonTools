@@ -11,3 +11,4 @@ dist/
 examples/Jetton/.keystore/
 TonTools/__pycache__/
 /test/
+/update.sh
