@@ -12,6 +12,7 @@ from ..Contracts.Contract import Transaction
 from ..Contracts.Wallet import Wallet
 from ..Contracts.Jetton import Jetton, JettonWallet
 from .utils import markets_adresses, get, process_jetton_data
+from ._orbs_ton_access import get_http_endpoint
 
 
 class TonCenterClientError(BaseException):
@@ -39,19 +40,26 @@ class TonCenterClient:
                  key: str = None,
                  addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'.
                  base_url=None,
-                 testnet=False
+                 testnet=False,
+                 orbs_access=False  # https://www.orbs.com/ton-access/
                  ):
         self.form = addresses_form
         self.delay = 0
         self.base_url = base_url
+        self.testnet = testnet
+        if orbs_access:
+            self.headers = {}
+            if testnet:
+                self.base_url = get_http_endpoint({'network': 'testnet', 'protocol': 'rest'})
+                return
+            self.base_url = get_http_endpoint({'protocol': 'rest'})
+            return
         if testnet:
-            self.testnet = True
             if base_url is None:
                 self.base_url = 'https://testnet.toncenter.com/api/v2/'
             else:
                 self.base_url = base_url
         else:
-            self.testnet = False
             if base_url is None:
                 self.base_url = 'https://toncenter.com/api/v2/'
             else:

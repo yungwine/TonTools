@@ -38,12 +38,20 @@ Most provider methods are the same, but there are some differences.
 
 To initialize TonCenterClient: 
 ```python
-client = TonCenterClient(base_url='http://127.0.0.1:80/', addresses_form=addresses_form)
+client = TonCenterClient(base_url='http://127.0.0.1:80/')
 or
-client = TonCenterClient(api_key, addresses_form)
+client = TonCenterClient(api_key)
 ```
 Notice that TonCenter has Limit 10 RPS with Api Key, so It's highly recommend to use [Local TonCenter](https://github.com/toncenter/ton-http-api) 
-and specify your host in `base_url` parameter.
+and specify your host in `base_url` parameter or use the [Orbs Ton Access](https://www.orbs.com/ton-access/): 
+
+```python
+client = TonCenterClient(orbs_access=True,
+                         testnet=True)
+
+contract = Contract('EQBvW8Z5huBkMJYdnfAEM5JqTNkuWX3diqYENkWsIL0XggGG', client)
+print((await contract.get_transactions(limit=10))[-1].out_msgs[0].destination)  # kQCdaMggjCXoW867yRXilPw2bu8Av9dSBlGGCdDPIGNLKM8N
+```
 
 ### LsClient
 

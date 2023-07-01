@@ -1,5 +1,6 @@
 import base64
 import json
+import typing
 
 from tonsdk.utils import Address, InvalidAddressError, b64str_to_bytes
 from tonsdk.boc import Cell, Slice
@@ -85,8 +86,8 @@ class Transaction:
         self.hash = data['hash']
         self.lt = data['lt']
         self.status = transaction_status(data['data']) if 'status' not in data else data['status']
-        self.in_msg = InMsg(data['in_msg'])
-        self.out_msgs = [OutMsg(out_msg) for out_msg in data['out_msgs']]
+        self.in_msg: InMsg = InMsg(data['in_msg'])
+        self.out_msgs: typing.List[OutMsg] = [OutMsg(out_msg) for out_msg in data['out_msgs']]
 
     def to_dict(self):
         return {
@@ -139,7 +140,7 @@ class Contract:
         self.address = address
         self.provider = provider
 
-    async def get_transactions(self, limit: int = 10**9, limit_per_one_request: int = 100):
+    async def get_transactions(self, limit: int = 10**9, limit_per_one_request: int = 100)  -> typing.List[Transaction]:
         return await self.provider.get_transactions(self.address, limit, limit_per_one_request)
 
     async def run_get_method(self, method: str, stack: list):  # TonCenterClient or LsClient required
