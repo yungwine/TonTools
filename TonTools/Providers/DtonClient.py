@@ -313,6 +313,7 @@ class DtonClient:
         result = []
         for item in data:
             result.append(NftItem(self._process_address(self.get_addr_from_wc_hex(item['workchain'], item['address'])), self))
+        return result
 
     async def get_transactions(self, address: str, limit: int = -1, limit_per_one_request: int = 150):
         transactions = await self.raw_get_transactions(
