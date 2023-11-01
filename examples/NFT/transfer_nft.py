@@ -4,12 +4,7 @@ from TonTools import *
 
 
 async def main():
-    # client = TonApiClient()
-
-    client = TonCenterClient(base_url='http://127.0.0.1:80/')
-
-    # client = LsClient(ls_index=2, default_timeout=20)
-    # await client.init_tonlib()
+    client = TonCenterClient(orbs_access=True)
 
     my_wallet_mnemonics = []
     my_wallet = Wallet(provider=client, mnemonics=my_wallet_mnemonics, version='v4r2')
