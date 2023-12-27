@@ -35,7 +35,7 @@ class Msg:
         self.source = data['source']
         self.destination = data['destination']
         self.value = data['value']
-        self.msg_data = base64.b64decode(data['msg_data']).decode().split('\x00')[-1] if not is_boc(data['msg_data']) else data['msg_data']
+        self.msg_data = base64.b64decode(data['msg_data']).decode().split('\x00')[-1] if isBase64(data['msg_data']) else data['msg_data']
         self.op_code = self.try_get_op() if 'op_code' not in data else data['op_code']
 
     def try_detect_type(self):
