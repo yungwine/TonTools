@@ -127,7 +127,10 @@ class TonCenterClient:
         collection_content_url = Cell.one_from_boc(base64.b64decode(content_data[0][1]['bytes'])).bits.get_top_upped_array().decode().split('\x01')[-1]
         # if '\x01' in collection_content_url:
         #     collection_content_url = collection_content_url.split('\x01')[1]
-        nft_content_url = collection_content_url + Cell.one_from_boc(base64.b64decode(content_data[0][1]['bytes'])).refs[0].bits.get_top_upped_array().decode()
+        if not refs:
+            nft_content_url = collection_content_url
+        else:
+            nft_content_url = collection_content_url + refs[0].bits.get_top_upped_array().decode()
 
         result['metadata'] = await get(nft_content_url)
 
