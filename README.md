@@ -61,10 +61,10 @@ print((await contract.get_transactions(limit=10))[-1].out_msgs[0].destination)  
 
 To initialize LsClient: 
 ```python
-client = LsClient(ls_index=2, default_timeout=30, addresses_form='user_friendly')
-await client.init_tonlib()
+client = LsClient(ls_index=2, default_timeout=30, addresses_form=AddressForm.USER_FRIENDLY)
+await client.init()
 ```
-*LsClient* is some more advanced, for e.g. you may need to compile binaries to use it.
+**LsClient** is some more advanced, for e.g. you may need to compile binaries to use it.
 
 ### DtonClient
 [Dton](https://docs.dton.io/dton) is a high level indexing GraphQL Api. 
@@ -73,7 +73,7 @@ To initialize DtonClient:
 ```python
 client = DtonClient(
     key: str = None,  # dton api key
-    addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'
+    addresses_form=AddressForm.USER_FRIENDLY,  # addresses_form could be RAW or USER_FRIENDLY
     testnet=False,  # if testnet, all addresses will be in testnet form and base url will start with https://testnet.dton.io/
     private_graphql=False  # you can use private_graphql if you have an api key
 )
@@ -81,13 +81,9 @@ client = DtonClient(
 **_Note:_** Dton currently doesn't support sending messages to blockchain, so you can't, for example, transfer toncoins using this provider
 
 
-### TonApiClient - currently v1
+### TonApiClient v2
 
-**_Note:_** in future TonApiClient will be overwritten to use v2 methods
-and current TonApiClient will be renamed into TonApiClientV1, because tonapi v1 endpoints
-soon will become unsupported
-
-[TonApi](https://tonapi.io/swagger-ui) is a high level indexing Api. 
+[TonApi](https://tonapi.io/api-v2) is a high level indexing Api. 
 
 To initialize TonApiClient: 
 ```python
@@ -97,7 +93,17 @@ client = TonApiClient(api_key, addresses_form)
 you should use it if you want to scan a lot of _transactions_ and _contracts_  
 
 
+### SafeLsClient
 
+**SafeLsClient** is a wrapper for **LsClient** which accepts a fallback client.
+Lite servers can be unstable, so if **LsClient** fails to get data, **SafeLsClient** 
+will try to get data from the fallback client and change the `ls_index` to the next one for future requests.
+```python
+fallback_client = TonApiClient(api_key)
+client = SafeLsClient(fallback_client, cdll_path=app_dir / 'tonlibjson.dll')
+await client.init()
+```
+**_Note:_** Provide a fallback client that has methods you need to use.
 
 
 ## Contracts
@@ -144,7 +150,7 @@ print(sale.price_value, sale.owner) #  200000000000 EQBZVBXBpirFPOQ5Wmgi5Es2hDCR
 There are `Jetton and JettonWallet` classes.
 ```python
 client = LsClient(ls_index=2, default_timeout=30)
-await client.init_tonlib()
+await client.init()
 
 jetton = Jetton('EQBl3gg6AAdjgjO2ZoNU5Q5EzUIl8XMNZrix8Z5dJmkHUfxI', provider=client)
 print(jetton)  # Jetton({"address": "EQBl3gg6AAdjgjO2ZoNU5Q5EzUIl8XMNZrix8Z5dJmkHUfxI"})
@@ -171,7 +177,7 @@ Currently there is only `Wallet` class (will add HighLoadWallet and MultiSigWall
 You can create new wallet just calling `Wallet(provider, wallet_version)`, check existing wallet `Wallet(provider, address)` or enter wallet `Wallet(provider, mnemonics, wallet_version)`
 ```python
 client = LsClient(ls_index=2, default_timeout=20)
-await client.init_tonlib()
+await client.init()
 
 my_wallet_mnemonics = []
 my_wallet = Wallet(provider=client, mnemonics=my_wallet_mnemonics, version='v4r2')

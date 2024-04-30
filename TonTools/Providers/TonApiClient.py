@@ -7,6 +7,7 @@ from ..Contracts.NFT import NftItem, NftCollection
 from ..Contracts.Contract import Transaction
 from ..Contracts.Wallet import Wallet
 from ..Contracts.Jetton import Jetton
+from ..Enums.Address import AddressForm
 
 
 class TonApiError(BaseException):
@@ -16,7 +17,7 @@ class TonApiError(BaseException):
 async def process_response(response: aiohttp.ClientResponse):
     try:
         response_dict = await response.json()
-    except:
+    except Exception:
         raise TonApiError(f'Failed to parse response: {response.text}')
     if response.status != 200:
         raise TonApiError(f'TonApi failed with error: {response_dict}')
@@ -27,16 +28,16 @@ async def process_response(response: aiohttp.ClientResponse):
 class TonApiClient:
     def __init__(self,
                  key: str = None,  # api key from tonapi
-                 addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'
+                 addresses_form: str = AddressForm.USER_FRIENDLY,
                  testnet=False
                  ):
         self.form = addresses_form
         if testnet:
             self.testnet = True
-            self.base_url = 'https://testnet.tonapi.io/v1/'
+            self.base_url = 'https://testnet.tonapi.io/v2'
         else:
             self.testnet = False
-            self.base_url = 'https://tonapi.io/v1/'
+            self.base_url = 'https://tonapi.io/v2'
         if key:
             self.headers = {
                 'Authorization': 'Bearer ' + key
@@ -45,9 +46,9 @@ class TonApiClient:
             self.headers = {}
 
     def _process_address(self, address):
-        if self.form == 'raw':
+        if self.form == AddressForm.RAW:
             return Address(address).to_string(is_user_friendly=False)
-        elif self.form == 'user_friendly':
+        elif self.form == AddressForm.USER_FRIENDLY:
             if self.testnet:
                 return Address(address).to_string(True, True, True, True)
             else:
@@ -55,80 +56,50 @@ class TonApiClient:
 
     async def get_nft_owner(self, nft_address: str):
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'nft/getItems'
-            params = {
-                'addresses': [nft_address]
-            }
-            response = await session.get(url=url, params=params, headers=self.headers)
+            url = f'{self.base_url}/nfts/{nft_address}'
+            response = await session.get(url=url, headers=self.headers)
             response = await process_response(response)
-            item = response['nft_items'][0]
-            if 'sale' in item:
-                return self._process_address(item['sale']['owner']['address'])
-            return Wallet(self, self._process_address(item['owner']['address']))
+            if 'sale' in response:
+                return Wallet(self, self._process_address(response['sale']['owner']['address']))
+            return Wallet(self, self._process_address(response['owner']['address']))
 
     async def get_nft_items(self, nft_addresses: list):
         result = []
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'nft/getItems'
+            url = f'{self.base_url}/nfts/_bulk'
             params = {
-                'addresses': ','.join(nft_addresses)
+                'account_ids': nft_addresses
             }
-            response = await session.get(url=url, params=params, headers=self.headers)
+            response = await session.post(url=url, json=params, headers=self.headers)
             response = await process_response(response)
             for item in response['nft_items']:
-                temp = {
-                    'address': self._process_address(item['address']),
-                    'collection': {
-                        'address': self._process_address(item['collection']['address']),
-                        'name': item['collection']['name'],
-                    },
-                    'collection_address': self._process_address(item['collection']['address']),
-                    'index': item['index'],
-                    'metadata': item['metadata'],
-                    'owner': self._process_address(item['owner']['address'])
-                }
+                item['address'] = self._process_address(item['address'])
+                item['collection']['address'] = self._process_address(item['collection']['address'])
+                item['owner']['address'] = self._process_address(item['owner']['address'])
+                item['collection_address'] = item['collection']['address']
                 if 'sale' in item:
-                    temp['sale'] = {
-                        'address': self._process_address(item['sale']['address']),
-                        'market': {
-                            'address': self._process_address(item['sale']['market']['address']),
-                            'name': item['sale']['market']['name']
-                        },
-                        'owner': self._process_address(item['sale']['owner']['address']),
-                        'price': {
-                            'token_name': item['sale']['price']['token_name'],
-                            'value': item['sale']['price']['value'],
-                        }
-                    }
-                result.append(NftItem(temp, self))
+                    item['sale']['address'] = self._process_address(item['sale']['address'])
+                    item['sale']['market']['address'] = self._process_address(item['sale']['market']['address'])
+                    item['sale']['owner'] = self._process_address(item['sale']['owner']['address'])
+                result.append(NftItem(item, self))
             return result
 
     async def get_collection(self, collection_address):
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'nft/getCollection'
-            params = {
-                'account': collection_address
-            }
-            response = await session.get(url=url, params=params, headers=self.headers)
+            url = f'{self.base_url}/nfts/collections/{collection_address}'
+            response = await session.get(url=url, headers=self.headers)
             response = await process_response(response)
-            result = {
-                'address': self._process_address(response['address']),
-                'metadata': response['metadata'],
-                'next_item_index': response['next_item_index'],
-                'owner': self._process_address(response['owner']['address'])
-            }
-            return NftCollection(result, self)
+            if 'owner' in response:
+                response['owner'] = self._process_address(response['owner']['address'])
+            return NftCollection(response, self)
 
-    async def get_collection_items(self, collection: NftCollection, limit_per_one_request=1000):
+    async def get_collection_items(self, collection: NftCollection, limit: int = 10**9, limit_per_one_request=1000):
         async with aiohttp.ClientSession() as session:
-            if not limit_per_one_request:
-                limit_per_one_request = 1000
-            url = self.base_url + 'nft/searchItems'
+            url = f'{self.base_url}/nfts/collections/{collection.address}/items'
             i = 0
             items = []
-            while True:
+            while len(items) < limit:
                 params = {
-                    'collection': collection.address,
                     'limit': limit_per_one_request,
                     'offset': i
                 }
@@ -138,76 +109,59 @@ class TonApiClient:
                 if len(response['nft_items']) < limit_per_one_request:
                     break
                 i += limit_per_one_request
-            return items
+            return items[:limit]
 
-    async def get_transactions(self, address: str, limit: int = 10**9, limit_per_one_request: int = 100):
+    async def get_transactions(self, address: str, limit: int = 10**9, limit_per_one_request: int = 100, before_lt: int = 0, after_lt: int = 0):
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'blockchain/getTransactions'
+            url = f'{self.base_url}/blockchain/accounts/{address}/transactions'
             transactions = []
-            params = {
-                'account': address,
-                'limit': limit_per_one_request,
-                'minLt': 0
-            }
-            response = await session.get(url=url, params=params, headers=self.headers)
-            response = await process_response(response)
-            transactions += response['transactions']
-            while len(response['transactions']) == limit_per_one_request and len(transactions) < limit:
+            while len(transactions) < limit:
                 params = {
-                    'account': address,
                     'limit': limit_per_one_request,
-                    'maxLt': transactions[-1]['lt'],
-                    'minLt': 0
+                    **({'before_lt': before_lt} if before_lt else {}),
+                    **({'after_lt': after_lt} if after_lt else {})
                 }
                 response = await session.get(url=url, params=params, headers=self.headers)
                 response = await process_response(response)
-                transactions += response['transactions'][1:]
+                transactions.extend(response['transactions'])
+                if transactions:
+                    before_lt = transactions[-1]['lt']
+                if len(response['transactions']) < limit_per_one_request:
+                    break
             result = []
             for tr in transactions:
-                temp = {
-                    'utime': tr['utime'],
-                    'fee': tr['fee'],
-                    'data': tr['data'],
-                    'hash': base64.b64encode(s=bytearray.fromhex(tr['hash'])).decode(),
-                    'lt': tr['lt'],
-                    'in_msg': {
-                        'created_lt': tr['in_msg']['created_lt'],
-                        'source': self._process_address(tr['in_msg']['source']['address']) if 'source' in tr['in_msg'] else '',
-                        'destination': self._process_address(tr['in_msg']['destination']['address']) if 'destination' in tr['in_msg'] else '',
-                        'value': tr['in_msg']['value'],
-                        'msg_data': tr['in_msg']['msg_data']
-                    },
-                    'out_msgs': [
-                        {
-                            'created_lt': out_msg['created_lt'],
-                            'source': self._process_address(out_msg['source']['address']) if 'source' in out_msg else '',
-                            'destination': self._process_address(out_msg['destination']['address']) if 'destination' in out_msg else '',
-                            'value': out_msg['value'],
-                            'msg_data': out_msg['msg_data']
-                        }
-                        for out_msg in tr['out_msgs']
-                    ]
-                }
-                result.append(Transaction(temp))
+                tr['data'] = None
+                tr['status'] = tr['success']
+                tr['fee'] = tr['total_fees']
+                tr['hash'] = base64.b64encode(s=bytearray.fromhex(tr['hash'])).decode()
+                tr['in_msg']['msg_data'] = tr['in_msg']['decoded_body'] if 'decoded_body' in tr['in_msg'] else None
+                tr['in_msg']['msg_data_hex'] = tr['in_msg']['raw_body'] if 'raw_body' in tr['in_msg'] else None
+                tr['in_msg']['source'] = self._process_address(tr['in_msg']['source']['address']) if 'source' in tr['in_msg'] else ''
+                tr['in_msg']['destination'] = self._process_address(tr['in_msg']['destination']['address']) if 'destination' in tr['in_msg'] else ''
+                tr['in_msg']['op_code'] = tr['in_msg']['op_code'].replace('0x', '') if 'op_code' in tr['in_msg'] else ''
+                out_msgs = tr['out_msgs']
+                for out_msg in out_msgs:
+                    out_msg['source'] = self._process_address(out_msg['source']['address']) if 'source' in out_msg else ''
+                    out_msg['destination'] = self._process_address(out_msg['destination']['address']) if 'destination' in out_msg else ''
+                    out_msg['op_code'] = out_msg['op_code'].replace('0x', '') if 'op_code' in out_msg else ''
+                tr['out_msgs'] = out_msgs
+                result.append(Transaction(tr))
             return result[:limit]
 
     async def get_jetton_data(self, jetton_master_address: str):
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'jetton/getInfo'
-            params = {
-                'account': jetton_master_address
-            }
-            response = await session.get(url=url, params=params, headers=self.headers)
+            url = f'{self.base_url}/jettons/{jetton_master_address}'
+            response = await session.get(url=url, headers=self.headers)
             response = await process_response(response)
             result = response['metadata']
-            result['description'] = unicodedata.normalize("NFKD", result['description'])
+            result['description'] = unicodedata.normalize("NFKD", result['description']) if 'description' in result else ''
             result['address'] = self._process_address(result['address'])
             result['supply'] = response['total_supply']
             return Jetton(result, self)
 
     async def send_boc(self, boc):
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'send/boc'
+            url = f'{self.base_url}/blockchain/message'
             data = {
                 'boc': boc
             }
@@ -216,33 +170,24 @@ class TonApiClient:
 
     async def get_wallet_seqno(self, address: str):
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'wallet/getSeqno'
-            params = {
-                'account': address
-            }
-            response = await session.get(url=url, params=params, headers=self.headers)
+            url = f'{self.base_url}/wallet/{address}/seqno'
+            response = await session.get(url=url, headers=self.headers)
             response = await process_response(response)
             seqno = response['seqno']
             return seqno
 
     async def get_balance(self, address: str):
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'account/getInfo'
-            params = {
-                'account': address
-            }
-            response = await session.get(url=url, params=params, headers=self.headers)
+            url = f'{self.base_url}/accounts/{address}'
+            response = await session.get(url=url, headers=self.headers)
             response = await process_response(response)
             balance = response['balance']
             return int(balance)
 
     async def get_state(self, address: str):
         async with aiohttp.ClientSession() as session:
-            url = self.base_url + 'account/getInfo'
-            params = {
-                'account': address
-            }
-            response = await session.get(url=url, params=params, headers=self.headers)
+            url = f'{self.base_url}/accounts/{address}'
+            response = await session.get(url=url, headers=self.headers)
             response = await process_response(response)
             state = response['status']
             if state == 'empty' or state == 'uninit':

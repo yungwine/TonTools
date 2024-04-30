@@ -1,7 +1,6 @@
 import json
 
-from tonsdk.utils import Address, InvalidAddressError
-from ..Contracts.Contract import Contract
+from TonTools.Contracts.Contract import Contract
 
 
 class NftCollectionError(BaseException):
@@ -95,7 +94,6 @@ class NftCollection(Contract):
                 self.owner = data['owner']
             else:
                 super().__init__(data['address'], provider)
-                self.address = data
                 self.full_data = False
 
     def is_full(self):

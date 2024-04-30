@@ -2,15 +2,22 @@ import asyncio
 
 from TonTools import *
 
-# jetton address
-JETTON_MASTER = 'EQBl3gg6AAdjgjO2ZoNU5Q5EzUIl8XMNZrix8Z5dJmkHUfxI'
+app_dir: Path = Path(__file__).parent.parent.parent
+
 
 async def main():
-    client = TonCenterClient(orbs_access=True)
+    fallback_client = TonApiClient('your_key')
+    client = SafeLsClient(fallback_client, cdll_path=app_dir / 'tonlibjson.dll', addresses_form=AddressForm.USER_FRIENDLY)
 
-    jetton_master_data = await client.get_jetton_data(JETTON_MASTER)
+    await client.init()
 
-    # jetton_master = Jetton(JETTON_MASTER, client)
+    jetton_master_data = await client.get_jetton_data(JettonMasterAddress.GRAM)
+    # or
+    # jetton_master_data = await client.get_jetton_data(getattr(JettonMasterAddress, '@BTC25'))
+    # or
+    # jetton_master_data = await client.get_jetton_data('custom_jetton_master_address')
+
+    # jetton_master = Jetton(JettonMasterAddress.usdt, client)
     # await jetton_master.update()
     # jetton_master_data = jetton_master
 

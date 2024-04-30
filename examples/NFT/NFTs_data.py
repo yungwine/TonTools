@@ -26,7 +26,7 @@ async def main():
         item = NftItem(read_address(Cell.one_from_boc(b64str_to_bytes(data[0][1]['bytes']))).to_string(True, True, True), provider=client)  # TonCenterClient
         await item.update()
     if isinstance(client, LsClient):
-        data = await nft_collection.run_get_method(method='get_nft_address_by_index', stack=[{"@type": "tvm.stackEntryNumber","number": {"@type": "tvm.numberDecimal","number": str(index)}}])  # LsClient
+        data = await nft_collection.run_get_method(method='get_nft_address_by_index', stack=[{"@type": "tvm.stackEntryNumber", "number": {"@type": "tvm.numberDecimal", "number": str(index)}}])  # LsClient
         item = NftItem(read_address(Cell.one_from_boc(b64str_to_bytes(data[0].cell.bytes))).to_string(True, True, True), provider=client)  # LsClient
         await item.update()
     if isinstance(client, TonApiClient):

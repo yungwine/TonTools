@@ -1,19 +1,17 @@
 import asyncio
-import typing
 from datetime import datetime
-from math import ceil
 import base64
 import aiohttp
 import requests
 from graphql_query import Argument, Field, Operation, Query
 
-from tonsdk.boc import Cell
-from tonsdk.utils import Address, b64str_to_bytes, bytes_to_b64str
+from tonsdk.utils import Address
 
 from .utils import get, markets_adresses, is_hex
 from ..Contracts.NFT import NftItem, NftCollection
 from ..Contracts.Contract import Transaction
 from ..Contracts.Jetton import Jetton, JettonWallet
+from ..Enums.Address import AddressForm
 
 
 class DtonError(BaseException):
@@ -23,7 +21,7 @@ class DtonError(BaseException):
 async def process_response(response: aiohttp.ClientResponse):
     try:
         response_dict = await response.json()
-    except:
+    except Exception:
         raise DtonError(f'Failed to parse response: {response.text}')
     if response.status != 200:
         raise DtonError(f'dton failed with error: {response_dict}')
@@ -34,7 +32,7 @@ async def process_response(response: aiohttp.ClientResponse):
 class DtonClient:
     def __init__(self,
                  key: str = None,  # dton api key
-                 addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'
+                 addresses_form: str = AddressForm.USER_FRIENDLY,
                  testnet=False,
                  private_graphql=False
                  ):
@@ -58,9 +56,9 @@ class DtonClient:
             self.cookies = {}
 
     def _process_address(self, address):
-        if self.form == 'raw':
+        if self.form == AddressForm.RAW:
             return Address(address).to_string(is_user_friendly=False)
-        elif self.form == 'user_friendly':
+        elif self.form == AddressForm.USER_FRIENDLY:
             if self.testnet:
                 return Address(address).to_string(True, True, True, True)
             else:
@@ -70,9 +68,9 @@ class DtonClient:
     def get_friendly(address: str):
         return Address(address).to_string(True, True, True)
 
-    def get_addr_from_wc_hex(self, wc: int, hex: str):
+    def get_addr_from_wc_hex(self, wc: int, hex_: str):
         return self._process_address(
-            Address(str(wc) + ':' + hex).to_string()
+            Address(str(wc) + ':' + hex_).to_string()
         )
 
     async def send_query(self, graphql_query: str, variables=None):
@@ -121,7 +119,7 @@ class DtonClient:
             result.append(Argument(name=k, value=v))
         return result
 
-    async def raw_send_query(self, table_name: str, fields: list, type="query", **kwargs):
+    async def raw_send_query(self, table_name: str, fields: list, type='query', **kwargs):
         result_args = self.process_args(kwargs)
         result_fields = self.process_fields(fields)
 
@@ -301,7 +299,7 @@ class DtonClient:
 
         return NftCollection(result, self)
 
-    async def get_collection_items(self, collection: NftCollection, limit_per_one_request: int = 0):
+    async def get_collection_items(self, collection: NftCollection):
         if not collection.is_full():
             await collection.update()
 
@@ -315,7 +313,7 @@ class DtonClient:
             result.append(NftItem(self._process_address(self.get_addr_from_wc_hex(item['workchain'], item['address'])), self))
         return result
 
-    async def get_transactions(self, address: str, limit: int = -1, limit_per_one_request: int = 150):
+    async def get_transactions(self, address: str, limit: int = -1):
         transactions = await self.raw_get_transactions(
             fields=[
                 'gen_utime', 'total_fees_grams', 'hash', 'lt', 'compute_ph_success',
@@ -396,8 +394,8 @@ class DtonClient:
 
     async def get_balance(self, address: str):
         data = (await self.raw_get_account_states(['account_storage_balance_grams'],
-                                                 address=Address(address).hash_part.hex().upper(),
-                                                 workchain=Address(address).wc))[0]
+                                                  address=Address(address).hash_part.hex().upper(),
+                                                  workchain=Address(address).wc))[0]
 
         return int(data['account_storage_balance_grams'])
 
@@ -428,7 +426,7 @@ class DtonClient:
 
         addr = await self.raw_send_query('getJettonWalletAddress', [], minter_address=jetton_master_address, user_address=owner_address)
 
-        return self._process_address((addr))
+        return self._process_address(addr)
 
     async def get_jetton_wallet(self, jetton_wallet_address: str):
         data = (await self.raw_get_account_states([

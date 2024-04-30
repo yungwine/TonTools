@@ -1,12 +1,20 @@
-from setuptools import setup
-import setuptools
+from setuptools import setup, find_packages
 
-requirements = ["tonsdk>=1.0.13", "ton>=0.26", "aiohttp>=3.8.1", "setuptools>=65.3.0", "requests>=2.28.1", "pytonlib>=0.0.46", "graphql-query==1.0.3"]
+requirements = [
+    "setuptools>=69.5",
+    "tonsdk~=1.0.13",
+    "ton~=0.26",
+    "aiohttp~=3.9",
+    "requests~=2.31",
+    "pytonlib~=0.0.46",
+    "graphql-query~=1.3",
+]
 
 setup(
     name='TonTools',
-    version='2.1.2',
-    packages=['TonTools', 'TonTools/Contracts', 'TonTools/Providers'],
+    version='2.2.0',
+    packages=find_packages(),
+    include_package_data=True,
     url='',
     license='MIT License',
     author='yungwine',

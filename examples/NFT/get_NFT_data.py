@@ -4,6 +4,7 @@ from TonTools import *
 
 NFT = 'EQD6ufFjSIUJSkbVuV7w00ORT8UvoMLQ9RDZ1lJ8sYh3cOIx'
 
+
 async def main():
     client = TonCenterClient(orbs_access=True)
 

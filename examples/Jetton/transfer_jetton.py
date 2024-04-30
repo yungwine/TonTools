@@ -8,6 +8,7 @@ JETTON_MASTER = 'EQBl3gg6AAdjgjO2ZoNU5Q5EzUIl8XMNZrix8Z5dJmkHUfxI'
 # YOUR wallet mnemonic
 MNEMONICS = ['your', 'mnemonic', '...']
 
+
 async def main():
     client = TonCenterClient(orbs_access=True)
     your_wallet = Wallet(provider=client, mnemonics=MNEMONICS, version='v4r2')

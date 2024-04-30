@@ -1,23 +1,24 @@
-import logging
+import typing
 import unicodedata
 from base64 import b64decode
 import aiohttp
 
-import asyncio
 from tonsdk.boc import Cell
-from tonsdk.utils import Address, bytes_to_b64str, b64str_to_bytes
-
-from ton.account import Account
-from ton import TonlibClient
-from ton.utils.cell import read_address
 
 
-def is_hex(str):
+def is_hex(s: str):
     try:
-        int(str, 16)
+        int(s, 16)
         return True
-    except:
+    except ValueError:
         return False
+
+
+def _get_refs(callback, default: typing.Any = ''):
+    try:
+        return callback()
+    except IndexError:
+        return default
 
 
 def process_jetton_data(data):
@@ -25,12 +26,12 @@ def process_jetton_data(data):
         url = Cell.one_from_boc(b64decode(data)).bits.get_top_upped_array().decode().split('\x01')[-1]
         return url
     else:
-        symbol = Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[1].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
-        desc1 = unicodedata.normalize("NFKD", Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1])  # Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs
-        desc2 = unicodedata.normalize("NFKD", Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]) if len(Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs[0].refs) else ''
-        decimals = Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[1].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
-        name = Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
-        image = Cell.one_from_boc(b64decode(data)).refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
+        symbol = _get_refs(lambda: Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[1].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1])
+        desc1 = _get_refs(lambda: unicodedata.normalize("NFKD", Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]))
+        desc2 = _get_refs(lambda: unicodedata.normalize("NFKD", Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]))
+        decimals = _get_refs(lambda: Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[1].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1], 0)
+        name = _get_refs(lambda: Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1])
+        image = _get_refs(lambda: Cell.one_from_boc(b64decode(data)).refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1])
         return {
             'name': name,
             'description': desc1 + desc2,

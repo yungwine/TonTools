@@ -41,7 +41,7 @@ class Jetton(Contract):
         self.image = jetton.image
         self.token_supply = jetton.token_supply
 
-    async def get_jetton_wallet(self, owner_address: str): # TonCenterClient or LsClient required
+    async def get_jetton_wallet(self, owner_address: str):  # TonCenterClient or LsClient required
         jetton_wallet_address = await self.provider.get_jetton_wallet_address(self.address, owner_address)
         return JettonWallet(jetton_wallet_address, self.provider)
 

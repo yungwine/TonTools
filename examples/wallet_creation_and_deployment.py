@@ -1,6 +1,10 @@
 import asyncio
+from pathlib import Path
 
-from TonTools import *
+from TonTools import LsClient, Wallet, Address
+
+
+app_dir: Path = Path(__file__).parent.parent
 
 
 async def main():
@@ -8,14 +12,14 @@ async def main():
 
     # client = TonCenterClient(base_url='http://127.0.0.1:80/')
 
-    client = LsClient(ls_index=2, default_timeout=20)
-    await client.init_tonlib()
+    client = LsClient(ls_index=1, cdll_path=app_dir / 'tonlibjson.dll')
+    await client.init()
 
     my_wallet_mnemonics = []
     my_wallet = Wallet(provider=client, mnemonics=my_wallet_mnemonics, version='v4r2')
     my_wallet_nano_balance = await my_wallet.get_balance()
 
-    if my_wallet_nano_balance / 10**9 >= 0.03:
+    if client.from_nano(my_wallet_nano_balance) >= 0.03:
         new_wallet = Wallet(provider=client)
         print(new_wallet.address, new_wallet.mnemonics, my_wallet_nano_balance)  # EQBcMK8CBrZKfSYdvT8FDVo1TxZV_d3Lz-xPyGp8c7mUacko ['federal', 'memory', 'scare', 'exact', 'extend', 'rain', 'private', 'ribbon', 'inspire', 'capital', 'arrow', 'glimpse', 'toy', 'double', 'man', 'speak', 'imitate', 'hint', 'dinner', 'oblige', 'rather', 'answer', 'unfold', 'small'] 496348289
         non_bounceable_new_wallet_address = Address(new_wallet.address).to_string(True, True, False)

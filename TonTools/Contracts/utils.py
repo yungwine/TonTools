@@ -12,8 +12,8 @@ def transaction_status(tr_data: str):
     else:
         cell = deserialize_boc(b64str_to_bytes(tr_data))
     tr = PytonlibTransaction(PytonlibSlice(cell))
-    if not(tr.description.action and tr.description.action.result_code) and \
-            not(tr.description.compute_ph.type == 'tr_phase_compute_vm' and tr.description.compute_ph.exit_code):
+    if not (tr.description.action and tr.description.action.result_code) and \
+            not (tr.description.compute_ph.type == 'tr_phase_compute_vm' and tr.description.compute_ph.exit_code):
         return True
     return False
 

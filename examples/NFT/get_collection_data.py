@@ -4,6 +4,7 @@ from TonTools import *
 
 COLLECTION = 'EQDvRFMYLdxmvY3Tk-cfWMLqDnXF_EclO2Fp4wwj33WhlNFT'
 
+
 async def main():
     client = TonCenterClient(orbs_access=True)
 

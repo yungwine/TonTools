@@ -2,8 +2,8 @@ import base64
 import json
 import typing
 
-from tonsdk.utils import Address, InvalidAddressError, b64str_to_bytes
-from tonsdk.boc import Cell, Slice
+from tonsdk.utils import Address, b64str_to_bytes
+from tonsdk.boc import Cell
 from .utils import transaction_status, known_prefixes
 
 
@@ -17,7 +17,7 @@ def isBase64(sb):
         else:
             raise ValueError("Argument must be string or bytes")
         return base64.b64encode(base64.b64decode(sb_bytes)) == sb_bytes
-    except Exception:
+    except ValueError:
         return False
 
 
@@ -25,7 +25,7 @@ def is_boc(b64str: str):
     try:
         Cell.one_from_boc(b64str_to_bytes(b64str))
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -35,12 +35,17 @@ class Msg:
         self.source = data['source']
         self.destination = data['destination']
         self.value = data['value']
-        self.msg_data = base64.b64decode(data['msg_data']).decode().split('\x00')[-1] if not is_boc(data['msg_data']) else data['msg_data']
+        if data.get('msg_data') is None:
+            self.msg_data = base64.b64encode(bytes.fromhex(data['msg_data_hex'])).decode() if 'msg_data_hex' in data else None
+        else:
+            if isinstance(data['msg_data'], dict) or is_boc(data['msg_data']):
+                self.msg_data = data['msg_data']
+            else:
+                self.msg_data = base64.b64decode(data['msg_data']).decode().split('\x00')[-1]
         self.op_code = self.try_get_op() if 'op_code' not in data else data['op_code']
 
     def try_detect_type(self):
-        op = self.try_get_op()
-        return known_prefixes.get(op)
+        return known_prefixes.get(self.op_code)
 
     def try_get_op(self):
         if not self.msg_data:
@@ -48,9 +53,9 @@ class Msg:
         if not is_boc(self.msg_data):
             op = '000000'
         else:
-            slice = Cell.one_from_boc(b64str_to_bytes(self.msg_data)).begin_parse()
-            if len(slice) >= 32:
-                op = slice.read_bytes(4).hex()
+            _slice = Cell.one_from_boc(b64str_to_bytes(self.msg_data)).begin_parse()
+            if len(_slice) >= 32:
+                op = _slice.read_bytes(4).hex()
             else:
                 return None
         return op
@@ -109,7 +114,7 @@ class Transaction:
                 'value': int(self.in_msg.value) / 10**9,
                 'from': self.in_msg.source,
                 'to': self.in_msg.destination,
-                'comment': self.in_msg.msg_data if 'te6' not in self.in_msg.msg_data else ''
+                'comment': self.in_msg.msg_data if 'te6' not in (self.in_msg.msg_data or ()) else ''
             }
         else:
             return {
@@ -120,7 +125,7 @@ class Transaction:
                 'value': int(self.out_msgs[0].value) / 10**9 if len(self.out_msgs) == 1 else [int(out_msg.value) / 10**9 for out_msg in self.out_msgs],
                 'from': self.out_msgs[0].source,
                 'to': self.out_msgs[0].destination if len(self.out_msgs) == 1 else [out_msg.destination for out_msg in self.out_msgs],
-                'comment': (self.out_msgs[0].msg_data if 'te6' not in self.out_msgs[0].msg_data else '') if len(self.out_msgs) == 1 else [out_msg.msg_data if 'te6' not in out_msg.msg_data else '' for out_msg in self.out_msgs],
+                'comment': (self.out_msgs[0].msg_data if 'te6' not in (self.out_msgs[0].msg_data or ()) else '') if len(self.out_msgs) == 1 else [out_msg.msg_data if 'te6' not in (out_msg.msg_data or ()) else '' for out_msg in self.out_msgs],
             }
 
     def __str__(self):
@@ -140,7 +145,7 @@ class Contract:
         self.address = address
         self.provider = provider
 
-    async def get_transactions(self, limit: int = 10**9, limit_per_one_request: int = 100)  -> typing.List[Transaction]:
+    async def get_transactions(self, limit: int = 10**9, limit_per_one_request: int = 100) -> typing.List[Transaction]:
         return await self.provider.get_transactions(self.address, limit, limit_per_one_request)
 
     async def run_get_method(self, method: str, stack: list):  # TonCenterClient or LsClient required

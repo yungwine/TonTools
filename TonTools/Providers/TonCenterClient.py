@@ -11,6 +11,7 @@ from ..Contracts.NFT import NftItem, NftCollection
 from ..Contracts.Contract import Transaction
 from ..Contracts.Wallet import Wallet
 from ..Contracts.Jetton import Jetton, JettonWallet
+from ..Enums.Address import AddressForm
 from .utils import markets_adresses, get, process_jetton_data
 from ._orbs_ton_access import get_http_endpoint
 
@@ -26,7 +27,7 @@ class GetMethodError(TonCenterClientError):
 async def process_response(response: aiohttp.ClientResponse):
     try:
         response_dict = await response.json()
-    except:
+    except Exception:
         raise TonCenterClientError(f'Failed to parse response: {response.text}')
     if response.status != 200:
         raise TonCenterClientError(f'TonCenter failed with error: {response_dict["error"]}')
@@ -35,10 +36,9 @@ async def process_response(response: aiohttp.ClientResponse):
 
 
 class TonCenterClient:
-
     def __init__(self,
                  key: str = None,
-                 addresses_form='user_friendly',  # addresses_form could be 'raw' or 'user_friendly'.
+                 addresses_form: str = AddressForm.USER_FRIENDLY,
                  base_url=None,
                  testnet=False,
                  orbs_access=False  # https://www.orbs.com/ton-access/
@@ -72,9 +72,9 @@ class TonCenterClient:
             self.headers = {}
 
     def _process_address(self, address):
-        if self.form == 'raw':
+        if self.form == AddressForm.RAW:
             return Address(address).to_string(is_user_friendly=False)
-        elif self.form == 'user_friendly':
+        elif self.form == AddressForm.USER_FRIENDLY:
             if self.testnet:
                 return Address(address).to_string(True, True, True, True)
             else:
@@ -223,7 +223,7 @@ class TonCenterClient:
             items = []
             for p in range(ceil(collection.next_item_index / limit_per_one_request)):
                 items += await asyncio.gather(*[
-                    self.run_get_method(address=collection.address, method='get_nft_address_by_index',stack=[['num', i]]) for i in range(p * limit_per_one_request, min(collection.next_item_index, limit_per_one_request * (p + 1)))])
+                    self.run_get_method(address=collection.address, method='get_nft_address_by_index', stack=[['num', i]]) for i in range(p * limit_per_one_request, min(collection.next_item_index, limit_per_one_request * (p + 1)))])
 
         result = []
         for data in items:
@@ -331,7 +331,7 @@ class TonCenterClient:
         return jetton_wallet_address
 
     async def get_jetton_wallet(self, jetton_wallet_address: str):
-        data = await self.run_get_method(address=jetton_wallet_address, method='get_wallet_data',stack=[])
+        data = await self.run_get_method(address=jetton_wallet_address, method='get_wallet_data', stack=[])
         wallet = {
             'address': jetton_wallet_address,
             'balance': int(data[0][1], 16),
