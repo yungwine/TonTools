@@ -22,7 +22,7 @@ class Jetton(Contract):
             self.decimals = int(data.get('decimals', 9))
             self.symbol = data['symbol']
             self.name = data['name']
-            self.description = data['description']
+            self.description = data.get('description')
             self.image = data['image'] if 'image' in data else data.get('image_data')
             self.token_supply = self.supply / 10 ** self.decimals
 
