@@ -21,16 +21,17 @@ def is_hex(str):
 
 
 def process_jetton_data(data):
-    if not len(Cell.one_from_boc(b64decode(data)).refs):
-        url = Cell.one_from_boc(b64decode(data)).bits.get_top_upped_array().decode().split('\x01')[-1]
-        return url
-    else:
-        symbol = Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[1].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
-        desc1 = unicodedata.normalize("NFKD", Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1])  # Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs
-        desc2 = unicodedata.normalize("NFKD", Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]) if len(Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs[0].refs) else ''
-        decimals = Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[1].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
-        name = Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
-        image = Cell.one_from_boc(b64decode(data)).refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
+    try:
+        if Cell.one_from_boc(b64decode(data)).refs[0].refs[0].refs[0].bits:
+            url = Cell.one_from_boc(b64decode(data)).refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
+            return url
+    except:
+        symbol = Cell.one_from_boc(b64decode(data)).refs[0].refs[0].refs[1].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
+        desc1 = unicodedata.normalize("NFKD", Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1])  # Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].refs
+        desc2 = unicodedata.normalize("NFKD", Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]) if len(Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[0].refs[0].refs) else ''
+        decimals = Cell.one_from_boc(b64decode(data)).refs[0].refs[1].refs[1].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
+        name = Cell.one_from_boc(b64decode(data)).refs[0].refs[0].refs[0].refs[0].bits.get_top_upped_array().decode().split('\x00')[-1]
+        image = ""
         return {
             'name': name,
             'description': desc1 + desc2,
