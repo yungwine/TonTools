@@ -39,6 +39,12 @@ def process_jetton_data(data):
             'decimals': int(decimals)
         }
 
+def from_nanotons(amount):
+    return amount / 1000000000
+
+def to_nanotons(amount):
+    return amount * 1000000000
+
 
 async def get(url: str):
     if 'ipfs' in url:

@@ -11,7 +11,7 @@ from ..Contracts.NFT import NftItem, NftCollection
 from ..Contracts.Contract import Transaction
 from ..Contracts.Wallet import Wallet
 from ..Contracts.Jetton import Jetton, JettonWallet
-from .utils import markets_adresses, get, process_jetton_data
+from .utils import markets_adresses, get, process_jetton_data, from_nanotons
 from ._orbs_ton_access import get_http_endpoint
 
 
@@ -303,7 +303,7 @@ class TonCenterClient:
         data = await self.run_get_method(address=address, method='seqno', stack=[])
         return int(data[0][1], 16)
 
-    async def get_balance(self, address: str):
+    async def get_balance(self, address: str,convert_nanotons=False):
         async with aiohttp.ClientSession() as session:
             url = self.base_url + 'getAddressBalance'
             params = {
@@ -311,7 +311,49 @@ class TonCenterClient:
             }
             response = await session.get(url=url, params=params, headers=self.headers)
             response = await process_response(response)
-            return int(response['result'])
+            balance = int(response['result'])
+
+            return balance if not convert_nanotons else from_nanotons(balance)
+
+    async def get_address_information(self, address: str):
+        async with aiohttp.ClientSession() as session:
+            url = self.base_url + 'getAddressInformation'
+            params = {
+                'address': address
+            }
+            response = await session.get(url=url, params=params, headers=self.headers)
+            response = await process_response(response)
+            return response['result']
+
+    async def get_wallet_information(self, address: str):
+        async with aiohttp.ClientSession() as session:
+            url = self.base_url + 'getWalletInformation'
+            params = {
+                'address': address
+            }
+            response = await session.get(url=url, params=params, headers=self.headers)
+            response = await process_response(response)
+            return response['result']
+
+    async def get_extended_address_information(self, address: str):
+        async with aiohttp.ClientSession() as session:
+            url = self.base_url + 'getExtendedAddressInformation'
+            params = {
+                'address': address
+            }
+            response = await session.get(url=url, params=params, headers=self.headers)
+            response = await process_response(response)
+            return response['result']
+
+    async def get_extended_address_information(self, address: str):
+        async with aiohttp.ClientSession() as session:
+            url = self.base_url + 'getExtendedAddressInformation'
+            params = {
+                'address': address
+            }
+            response = await session.get(url=url, params=params, headers=self.headers)
+            response = await process_response(response)
+            return response['result']
 
     async def get_state(self, address: str):
         async with aiohttp.ClientSession() as session:
